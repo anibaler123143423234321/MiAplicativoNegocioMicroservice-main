@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:elevation="4dp"
+        android:layout_alignParentTop="true"
+        android:title="" />
+
+    <ImageButton
+        android:id="@+id/btnBack"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:contentDescription="Volver atrás"
+        android:src="@drawable/ic_volver_atras"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_below="@id/toolbar" />
+
+    <!-- Agrega un RecyclerView para mostrar la lista de compras -->
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewCompras"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/toolbar"
+        android:layout_marginTop="0dp" />
+
+    <TextView
+        android:id="@+id/txtProductoId"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="ID del Producto: "
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_below="@id/toolbar"
+        android:layout_centerHorizontal="true" />
+
+    <!--
+    <TextView
+        android:id="@+id/txtUserId"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="ID del Usuario: "
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_below="@id/txtProductoId"
+        android:layout_marginTop="16dp"
+        android:layout_centerHorizontal="true" />
+-->
+    <TextView
+        android:id="@+id/txtNombreProducto"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Nombre del Producto: "
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_below="@id/txtProductoId"
+        android:layout_marginTop="16dp"
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:id="@+id/txtPrecioProducto"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Precio: $0.00"
+        android:textSize="18sp"
+        android:layout_below="@id/txtNombreProducto"
+        android:layout_marginTop="16dp"
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:id="@+id/txtStockProducto"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Stock: 0"
+        android:textSize="18sp"
+        android:layout_below="@id/txtPrecioProducto"
+        android:layout_marginTop="16dp"
+        android:layout_centerHorizontal="true" />
+
+    <ImageView
+        android:id="@+id/imgProducto"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_below="@id/txtStockProducto"
+        android:layout_marginTop="16dp"
+        android:layout_centerHorizontal="true" />
+
+    <EditText
+        android:id="@+id/edtCantidadDeseada"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Cantidad Deseada"
+        android:inputType="number"
+        android:layout_below="@id/imgProducto"
+        android:layout_marginTop="16dp"
+        android:layout_margin="8dp"
+        android:layout_centerHorizontal="true" />
+
+    <!-- Encabezado para el tipo de Envío -->
+    <TextView
+        android:id="@+id/txtTipoEnvio"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Escoge el tipo de Envío:"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_below="@id/edtCantidadDeseada"
+        android:layout_marginTop="16dp"
+        android:layout_centerHorizontal="true" />
+
+    <RadioGroup
+        android:id="@+id/radioGroupEnvio"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/txtTipoEnvio"
+        android:layout_centerHorizontal="true"
+        android:orientation="horizontal">
+
+        <RadioButton
+            android:id="@+id/radioRecojoPresencial"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Recojo Presencial" />
+
+        <RadioButton
+            android:id="@+id/radioDelivery"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Delivery" />
+    </RadioGroup>
+
+    <!-- Encabezado para el tipo de Pago -->
+    <TextView
+        android:id="@+id/txtTipoPago"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Escoge el Tipo de Pago:"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_below="@id/radioGroupEnvio"
+        android:layout_marginTop="16dp"
+        android:layout_centerHorizontal="true" />
+
+    <RadioGroup
+        android:id="@+id/radioGroupPago"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/txtTipoPago"
+        android:layout_centerHorizontal="true"
+        android:orientation="horizontal">
+
+        <RadioButton
+            android:id="@+id/radioPagoVirtual"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Pago Virtual" />
+
+        <RadioButton
+            android:id="@+id/radioPagoPresencial"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Pago Presencial" />
+    </RadioGroup>
+
+    <Button
+        android:id="@+id/btnConfirmarCompra"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Confirmar Compra"
+        android:textSize="16sp"
+        android:layout_below="@id/radioGroupPago"
+        android:layout_marginTop="24dp"
+        android:layout_centerHorizontal="true" />
+
+</RelativeLayout>
