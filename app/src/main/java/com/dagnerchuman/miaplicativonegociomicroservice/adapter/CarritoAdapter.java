@@ -1,6 +1,7 @@
 package com.dagnerchuman.miaplicativonegociomicroservice.adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.dagnerchuman.miaplicativonegociomicroservice.R;
+import com.dagnerchuman.miaplicativonegociomicroservice.activity.CarritoActivity;
 import com.dagnerchuman.miaplicativonegociomicroservice.entity.Producto;
 import com.squareup.picasso.Picasso;
 
@@ -83,8 +85,31 @@ public class CarritoAdapter extends RecyclerView.Adapter<CarritoAdapter.CarritoV
                 }
             }
         });
-    }
 
+        // Manejar el botón de eliminar
+        holder.imgEliminar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int newPosition = holder.getAdapterPosition();
+                if (newPosition != RecyclerView.NO_POSITION) {
+                    // Elimina el producto y la cantidad deseada de las listas
+                    productosEnCarrito.remove(newPosition);
+                    cantidadesDeseadas.remove(newPosition);
+                    // Notifica al adaptador que los datos han cambiado
+                    notifyItemRemoved(newPosition);
+
+                    // Actualiza el intent con la lista de productos actualizada
+                    actualizarIntentCarrito(productosEnCarrito);
+                }
+            }
+        });
+    }
+    // Agregar esta función a la clase CarritoAdapter
+    private void actualizarIntentCarrito(List<Producto> productos) {
+        Intent intent = new Intent(context, CarritoActivity.class);
+        intent.putExtra("productosEnCarrito", new ArrayList<>(productos));
+        context.startActivity(intent);
+    }
     public int getCantidadDeseada(int position) {
         return cantidadesDeseadas.get(position);
     }
@@ -107,6 +132,8 @@ public class CarritoAdapter extends RecyclerView.Adapter<CarritoAdapter.CarritoV
         public TextView txtTotalProducto;
         public Button btnAumentar;
         public Button btnDisminuir;
+        public ImageView imgEliminar; // ImageView para el botón de eliminación
+
 
         public CarritoViewHolder(View itemView) {
             super(itemView);
@@ -117,6 +144,8 @@ public class CarritoAdapter extends RecyclerView.Adapter<CarritoAdapter.CarritoV
             txtTotalProducto = itemView.findViewById(R.id.txtTotalProducto);
             btnAumentar = itemView.findViewById(R.id.btnAumentar);
             btnDisminuir = itemView.findViewById(R.id.btnDisminuir);
+            imgEliminar = itemView.findViewById(R.id.imgEliminar); // Asociar ImageView al botón de eliminación
+
         }
     }
 }

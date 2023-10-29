@@ -32,6 +32,7 @@ public class CategoriaAdapter extends RecyclerView.Adapter<CategoriaAdapter.Prod
     private List<Producto> productList;
     private EntradaActivity entradaActivity;
     private List<CarritoItem> carrito;  // Agrega esta lista para llevar un registro del carrito.
+    private List<Producto> productosEnCarrito = new ArrayList<>();
 
 
     public CategoriaAdapter(Context context, List<Producto> productList) {
@@ -39,6 +40,8 @@ public class CategoriaAdapter extends RecyclerView.Adapter<CategoriaAdapter.Prod
         this.productList = productList;
         this.entradaActivity = entradaActivity;
         this.carrito = new ArrayList<>();
+        this.productosEnCarrito = new ArrayList<>(); // Inicializa la lista de productos en el carrito
+
     }
 
     @NonNull
@@ -75,25 +78,21 @@ public class CategoriaAdapter extends RecyclerView.Adapter<CategoriaAdapter.Prod
                 handleCompra(producto);
             }
         });
-
         holder.btnAnadirCarrito.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // Cambia el estado de selección del producto
+                producto.setSelected(!producto.isSelected());
 
-                Log.d("Añadir al carrito", "Botón Añadir al carrito clicado");
-                Log.d("Añadir al carrito", "Producto ID: " + producto.getId());
-                Log.d("Añadir al carrito", "Nombre: " + producto.getNombre());
-                Log.d("Añadir al carrito", "Cantidad: 1"); // Siempre agregamos 1
-                Log.d("Añadir al carrito", "Precio: $" + producto.getPrecio());
+                // Notifica al adaptador que los datos han cambiado
+                notifyDataSetChanged();
 
-                // Agregar lógica para añadir el producto al carrito aquí
-                // Puedes utilizar una lista para mantener un registro de los productos en el carrito.
-                // Por employee:
-                CarritoItem carritoItem = new CarritoItem(producto.getId().intValue(), producto.getNombre(), 1, producto.getPrecio());
-                carrito.add(carritoItem);
-                // Puedes mostrar un mensaje al usuario o realizar otras acciones si es necesario.
+                // Muestra un mensaje al usuario
+                Toast.makeText(context, "Producto añadido al carrito", Toast.LENGTH_SHORT).show();
             }
         });
+
+
 
     }
 

@@ -13,7 +13,6 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.dagnerchuman.miaplicativonegociomicroservice.R;
 import com.dagnerchuman.miaplicativonegociomicroservice.adapter.CarritoAdapter;
 import com.dagnerchuman.miaplicativonegociomicroservice.api.ApiServiceCompras;
@@ -39,13 +38,18 @@ public class CarritoActivity extends AppCompatActivity {
     private ImageButton btnBackToLogin;
     private ApiServiceCompras apiServiceCompras;
     private ApiServiceProductos apiServiceProductos;
+    private boolean productosCargados = false; // Bandera para rastrear si los productos ya se han cargado
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_carrito);
 
-        productosEnCarrito = (List<Producto>) getIntent().getSerializableExtra("productosEnCarrito");
+        if (!productosCargados) {
+            // Solo carga los productos desde Intent la primera vez que se inicia la actividad
+            productosEnCarrito = (List<Producto>) getIntent().getSerializableExtra("productosEnCarrito");
+            productosCargados = true; // Marca que los productos se han cargado
+        }
         apiServiceCompras = ConfigApi.getInstanceCompra(this);
         apiServiceProductos = ConfigApi.getInstanceProducto(this);
 
@@ -64,15 +68,22 @@ public class CarritoActivity extends AppCompatActivity {
         tipoPagoAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerTipoDePago.setAdapter(tipoPagoAdapter);
 
+
+// ...
         btnBackToLogin = findViewById(R.id.btnBackToLogin);
         btnBackToLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent loginIntent = new Intent(CarritoActivity.this, EntradaActivity.class);
+                // Modifica el Intent para enviar el 'categoriaId' de vuelta a la actividad 'CategoriaProductosActivity'
+                long categoriaId = getIntent().getLongExtra("categoriaSeleccionada", -1);
+                Intent loginIntent = new Intent(CarritoActivity.this, CategoriaProductosActivity.class);
+                loginIntent.putExtra("categoriaSeleccionada", categoriaId);
                 startActivity(loginIntent);
                 finish();
             }
         });
+// ...
+
 
         cantidadesDeseadas = new ArrayList<>();
         for (int i = 0; i < productosEnCarrito.size(); i++) {
@@ -188,6 +199,5 @@ public class CarritoActivity extends AppCompatActivity {
                 }
             }
         });
-
     }
 }

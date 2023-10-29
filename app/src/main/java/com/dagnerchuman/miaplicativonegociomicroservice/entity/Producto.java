@@ -17,6 +17,7 @@ public class Producto implements Serializable {
     private Long negocioId;
     private int stock;
     private static final Map<Long, ReentrantLock> productoLocks = new HashMap<>();
+    private boolean isSelected;
 
     public Producto(Long id, String nombre, Long categoriaId, String picture, Double precio, String fechaCreacion, Long negocioId, int stock) {
         this.id = id;
@@ -28,7 +29,13 @@ public class Producto implements Serializable {
         this.negocioId = negocioId;
         this.stock = stock;
     }
+    public boolean isSelected() {
+        return isSelected;
+    }
 
+    public void setSelected(boolean selected) {
+        isSelected = selected;
+    }
     public Long getId() {
         return id;
     }

@@ -134,9 +134,8 @@ public class EntradaActivity extends AppCompatActivity implements ProductoAdapte
         btnBackToLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent loginIntent = new Intent(EntradaActivity.this, LoginActivity.class);
-                startActivity(loginIntent);
-                finish();
+                // Limpia la caché y redirige a la pantalla de inicio de sesión
+                limpiarCacheYVolverALogin();
             }
         });
 
@@ -183,6 +182,22 @@ public class EntradaActivity extends AppCompatActivity implements ProductoAdapte
         }
 
 
+    }
+
+
+    private void limpiarCacheYVolverALogin() {
+        // Limpia la caché de SharedPreferences
+        SharedPreferences sharedPreferences = getSharedPreferences("UserData", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.clear();
+        editor.apply();
+
+        // Limpia la caché de otro almacenamiento local si es necesario
+
+        // Redirige a la pantalla de inicio de sesión
+        Intent loginIntent = new Intent(EntradaActivity.this, LoginActivity.class);
+        startActivity(loginIntent);
+        finish();
     }
 
     private void obtenerProductosDelNegocio(Long userNegocioId) {

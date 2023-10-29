@@ -25,6 +25,7 @@ import com.dagnerchuman.miaplicativonegociomicroservice.api.ApiServiceProductos;
 import com.dagnerchuman.miaplicativonegociomicroservice.api.ConfigApi;
 import com.dagnerchuman.miaplicativonegociomicroservice.entity.Compra;
 import com.dagnerchuman.miaplicativonegociomicroservice.entity.Producto;
+import android.app.AlertDialog;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -225,10 +226,10 @@ public class ComprarActivity extends AppCompatActivity implements CompraAdapter.
 
                                                                             if (finalUpdatedStock == nuevoStock) {
                                                                                 // El stock se mantiene igual, lo que significa que la compra se realizó con éxito
-                                                                                mostrarMensajeCompraExitosa();
+                                                                                mostrarAlertaCompraExitosa();
                                                                             } else {
                                                                                 // El stock ha cambiado, lo que significa que otro usuario compró el producto
-                                                                                Toast.makeText(ComprarActivity.this, "El stock ha cambiado, Aviso: Este producto es popular y otros usuarios pueden estar comprándolo. Asegúrese de confirmar su compra rápidamente para garantizar la disponibilidad.\n", Toast.LENGTH_SHORT).show();
+                                                                                Toast.makeText(ComprarActivity.this, "El stock ha cambiado, Aviso: Este producto es popular y otros usuarios pueden estar comprándolo.", Toast.LENGTH_SHORT).show();
                                                                             }
                                                                         }
                                                                     }
@@ -239,14 +240,14 @@ public class ComprarActivity extends AppCompatActivity implements CompraAdapter.
                                                                     }
                                                                 });
                                                             } else {
-                                                                Toast.makeText(ComprarActivity.this, "No se pudo confirmar la compra", Toast.LENGTH_SHORT).show();
+                                                                mostrarAlertaError("No se pudo confirmar la compra");
                                                                 Log.e("ComprarActivity", "Error en la respuesta: " + response.code());
                                                             }
                                                         }
 
                                                         @Override
                                                         public void onFailure(Call<Compra> compraCall, Throwable t) {
-                                                            Toast.makeText(ComprarActivity.this, "Error en la conexión", Toast.LENGTH_SHORT).show();
+                                                            mostrarAlertaError("Error en la conexión");
                                                             Log.e("ComprarActivity", "Error de conexión", t);
                                                         }
                                                     });
@@ -263,7 +264,7 @@ public class ComprarActivity extends AppCompatActivity implements CompraAdapter.
                                         }
                                     });
                                 } else {
-                                    Toast.makeText(ComprarActivity.this, "La cantidad deseada supera el stock actual (" + stockDisponible + ")", Toast.LENGTH_SHORT).show();
+                                    mostrarAlertaError("La cantidad deseada supera el stock actual (" + stockDisponible + ")");
                                 }
                             } finally {
                                 producto.desbloquearCompra(); // Asegúrate de desbloquear el producto, incluso si ocurre una excepción
@@ -281,10 +282,33 @@ public class ComprarActivity extends AppCompatActivity implements CompraAdapter.
                 }
             });
         } else {
-            Toast.makeText(this, "Ingresa la cantidad deseada", Toast.LENGTH_SHORT).show();
+            mostrarAlertaError("Ingresa la cantidad deseada");
         }
     }
 
+    // Función para mostrar una alerta de compra exitosa
+    private void mostrarAlertaCompraExitosa() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Compra Exitosa");
+        builder.setMessage("Tu compra se realizó con éxito.");
+        builder.setPositiveButton("Aceptar", (dialog, which) -> {
+            // Lógica a ejecutar después de hacer clic en "Aceptar" (si es necesario)
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    // Función para mostrar una alerta de error
+    private void mostrarAlertaError(String mensaje) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Error");
+        builder.setMessage(mensaje);
+        builder.setPositiveButton("Aceptar", (dialog, which) -> {
+            // Lógica a ejecutar después de hacer clic en "Aceptar" (si es necesario)
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
 
     private void actualizarStockProducto(Long productoId, int nuevoStock) {
         Call<Producto> call = apiServiceProductos.getProductoById(productoId);

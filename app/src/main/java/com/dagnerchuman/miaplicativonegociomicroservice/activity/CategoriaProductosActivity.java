@@ -1,6 +1,8 @@
 package com.dagnerchuman.miaplicativonegociomicroservice.activity;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -64,15 +66,39 @@ public class CategoriaProductosActivity extends AppCompatActivity {
         btnCarrito.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // Abre la actividad del carrito cuando se hace clic en el ícono del carrito.
+                // Crea un ArrayList para rastrear los productos seleccionados por el usuario
+                ArrayList<Producto> productosSeleccionados = new ArrayList<>();
+
+                // Itera a través de productList para encontrar los productos seleccionados
+                for (Producto producto : productList) {
+                    if (producto.isSelected()) {
+                        productosSeleccionados.add(producto);
+                    }
+                }
+
+                // Abre la actividad del carrito solo con los productos seleccionados
                 Intent carritoIntent = new Intent(CategoriaProductosActivity.this, CarritoActivity.class);
-                carritoIntent.putExtra("productosEnCarrito", new ArrayList<>(productList)); // Envia la lista de productos al carrito
+                carritoIntent.putExtra("productosEnCarrito", productosSeleccionados);
                 startActivity(carritoIntent);
             }
         });
 
-        // Obtén el ID de la categoría seleccionada de la actividad anterior
-        long categoriaId = getIntent().getLongExtra("categoriaSeleccionada", -1);
+
+
+        // Obtén las preferencias compartidas
+        SharedPreferences sharedPreferences = getSharedPreferences("CategoriaPrefs", Context.MODE_PRIVATE);
+
+// Recupera el valor almacenado en las preferencias compartidas
+        long categoriaId = sharedPreferences.getLong("categoriaId", -1);
+
+        if (categoriaId != -1) {
+            // Si se recuperó un valor válido, puedes usarlo en tu actividad
+            // Realiza la lógica necesaria con el valor de 'categoriaId' aquí
+        } else {
+            // Maneja el caso donde no se encontró el valor en las preferencias compartidas
+            Log.e("Categoría no válida", "No se encontró un valor válido en las preferencias compartidas.");
+        }
+
 
         // Registra el ID de la categoría seleccionada en el log
         Log.d("Categoría recibida", "ID: " + categoriaId);
@@ -149,16 +175,5 @@ public class CategoriaProductosActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void abrirCarrito() {
-        // Crea una lista de elementos de prueba para el carrito (sustituye por tus propios elementos).
-        List<CarritoItem> carrito = new ArrayList<>();
-
-        // Crea una Intent y agrega los datos del carrito como extras.
-        Intent carritoIntent = new Intent(CategoriaProductosActivity.this, CarritoActivity.class);
-        carritoIntent.putExtra("carritoItems", (Serializable) carrito);
-
-        // Inicia la actividad CarritoActivity.
-        startActivity(carritoIntent);
-    }
 
 }
