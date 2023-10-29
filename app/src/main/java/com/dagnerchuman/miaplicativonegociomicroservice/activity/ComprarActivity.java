@@ -228,7 +228,7 @@ public class ComprarActivity extends AppCompatActivity implements CompraAdapter.
                                                                                 mostrarMensajeCompraExitosa();
                                                                             } else {
                                                                                 // El stock ha cambiado, lo que significa que otro usuario compró el producto
-                                                                                Toast.makeText(ComprarActivity.this, "El stock ha cambiado, la compra no se pudo completar", Toast.LENGTH_SHORT).show();
+                                                                                Toast.makeText(ComprarActivity.this, "El stock ha cambiado, Aviso: Este producto es popular y otros usuarios pueden estar comprándolo. Asegúrese de confirmar su compra rápidamente para garantizar la disponibilidad.\n", Toast.LENGTH_SHORT).show();
                                                                             }
                                                                         }
                                                                     }

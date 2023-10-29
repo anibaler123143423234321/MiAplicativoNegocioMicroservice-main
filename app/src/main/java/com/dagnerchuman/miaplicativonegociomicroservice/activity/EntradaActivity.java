@@ -188,7 +188,7 @@ public class EntradaActivity extends AppCompatActivity implements ProductoAdapte
     private void obtenerProductosDelNegocio(Long userNegocioId) {
         ApiServiceProductos apiService = ConfigApi.getInstanceProducto(this);
 
-        Call<List<Producto>> call = apiService.getProductosPorNegocio(userNegocioId);  // Utiliza el nuevo endpoint
+        Call<List<Producto>> call = apiService.getProductosPorNegocio(userNegocioId);
 
         call.enqueue(new Callback<List<Producto>>() {
             @Override
@@ -196,9 +196,14 @@ public class EntradaActivity extends AppCompatActivity implements ProductoAdapte
                 if (response.isSuccessful()) {
                     List<Producto> productos = response.body();
 
-                    // Borra la lista de productos existente y agrega los productos del negocio
+                    // Borra la lista de productos existente
                     productosList.clear();
-                    productosList.addAll(productos);
+
+                    // Agrega solo los primeros 10 productos
+                    int maxProductos = Math.min(productos.size(), 10);
+                    for (int i = 0; i < maxProductos; i++) {
+                        productosList.add(productos.get(i));
+                    }
 
                     // Notifica al adaptador sobre los cambios
                     adapter.notifyDataSetChanged();
@@ -327,6 +332,9 @@ public class EntradaActivity extends AppCompatActivity implements ProductoAdapte
                             Button categoryButton = new Button(EntradaActivity.this);
                             categoryButton.setText(categoria.getNombre());
 
+                            // Establece el fondo programáticamente
+                            categoryButton.setBackgroundResource(R.drawable.categoria_button_background);
+
                             categoryButton.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View view) {
@@ -340,6 +348,7 @@ public class EntradaActivity extends AppCompatActivity implements ProductoAdapte
                             categoryButtonContainer.addView(categoryButton);
                         }
                     }
+
                 } else {
                     Log.e("API Response CATEGORIAS", "Respuesta no exitosa: " + response.code());
                     Log.e("API Response", "Estado del servidor: " + response.message());
