@@ -12,6 +12,6 @@
         android:layout_height="768dp"
         app:lottie_autoPlay="true"
         app:lottie_loop="true"
-        app:lottie_rawRes="@raw/anikihamster"
+        app:lottie_rawRes="@raw/animation_lo5t8ima"
         />
 </RelativeLayout>

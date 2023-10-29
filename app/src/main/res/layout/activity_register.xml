@@ -5,19 +5,18 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_color"
     tools:context=".activity.RegisterActivity">
 
     <!-- Toolbar -->
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
-        android:elevation="4dp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        android:background="#000000"
+    android:elevation="4dp"
+    app:layout_constraintTop_toTopOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintEnd_toEndOf="parent">
 
         <!-- Botón de regreso -->
         <ImageButton
@@ -69,7 +68,38 @@
                 android:layout_margin="16dp"
                 android:orientation="vertical">
 
-                <!-- Nombre -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/textInputLayoutDNI"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Número de DNI"
+                    app:startIconDrawable="@drawable/ic_tipo_doc">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/editTextDNI"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="number"
+                        android:maxLength="8"
+                        android:digits="0123456789"
+                        />
+                </com.google.android.material.textfield.TextInputLayout>
+
+
+                <Button
+                    android:id="@+id/buttonBuscarDNI"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:layout_marginTop="16dp"
+                    android:background="@drawable/bg_color"
+                    android:text="Buscar DNI"
+                    android:textColor="#FFFFFF"
+                    android:textSize="18sp"
+                    android:visibility="visible" />
+
+
+
+
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/textInputLayoutNombre"
                     android:layout_width="match_parent"
@@ -82,7 +112,11 @@
                         android:id="@+id/editTextNombre"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="text" />
+                        android:inputType="text"
+                        android:enabled="false"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                    />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <!-- Apellido -->
@@ -97,7 +131,11 @@
                         android:id="@+id/editTextApellido"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="text" />
+                        android:inputType="text"
+                        android:enabled="false"
+                        android:focusable="false"
+                        android:focusableInTouchMode="false"
+                        />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <!-- Teléfono -->
@@ -112,7 +150,10 @@
                         android:id="@+id/editTextTelefono"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="phone" />
+                        android:inputType="number"
+                        android:maxLength="9"
+                    android:digits="0123456789"
+                    />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <!-- Email -->
@@ -127,7 +168,8 @@
                         android:id="@+id/editTextEmail"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="textEmailAddress" />
+                        android:inputType="textEmailAddress"
+                   />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <!-- Nombre de usuario -->
@@ -162,38 +204,24 @@
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <!-- ID del negocio -->
+
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/textInputLayoutNegocioId"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="ID del negocio">
+                    android:hint="ID del negocio"
+                    style="@style/MyTextInputLayoutStyle">
 
                     <Spinner
                         android:id="@+id/spinnerNegocios"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="46dp"
                         android:layout_marginTop="12dp"
                         android:layout_marginBottom="12dp"
-                        android:background="@drawable/background_blue"
                         android:gravity="center"
                         android:paddingStart="12dp"
                         android:paddingEnd="12dp"
                         android:prompt="@string/select_business" />
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <!-- DNI -->
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/textInputLayoutDNI"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Número de DNI"
-                    app:startIconDrawable="@drawable/ic_tipo_doc">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/editTextDNI"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="number" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <!-- Tipo de Documento -->
@@ -203,7 +231,6 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:layout_marginBottom="8dp"
-                    android:background="@drawable/background_blue"
                     android:gravity="center"
                     android:hint="Selecciona un tipo de documento" />
 
@@ -214,7 +241,6 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:layout_marginBottom="8dp"
-                    android:background="@drawable/background_blue"
                     android:gravity="center"
                     android:hint="Selecciona un Departamento" />
 
@@ -225,7 +251,6 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:layout_marginBottom="8dp"
-                    android:background="@drawable/background_blue"
                     android:gravity="center"
                     android:hint="Selecciona una Provincia" />
 
@@ -236,7 +261,6 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:layout_marginBottom="8dp"
-                    android:background="@drawable/background_blue"
                     android:gravity="center"
                     android:hint="Selecciona un Distrito"
                     android:prompt="@string/select_document_Distrito" />

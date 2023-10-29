@@ -62,6 +62,10 @@ public class ComprarActivity extends AppCompatActivity implements CompraAdapter.
     // Añade una variable para el RecyclerView y su adaptador
     private RecyclerView recyclerView;
     private List<Compra> comprasList = new ArrayList<>();
+    private Object compraLock = new Object(); // Declaración de compraLock como objeto para bloquear
+    private boolean compraConfirmada = false; // Declaración de compraConfirmada como variable booleana
+
+    private boolean isCompraConfirmada = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -146,53 +150,141 @@ public class ComprarActivity extends AppCompatActivity implements CompraAdapter.
     }
 
     private void confirmarCompra() {
+        if (compraConfirmada) {
+            // La compra ya ha sido confirmada, no hagas nada.
+            return;
+        }
+
         String cantidadDeseadaStr = edtCantidadDeseada.getText().toString().trim();
 
         if (!cantidadDeseadaStr.isEmpty()) {
             cantidad = Integer.parseInt(cantidadDeseadaStr);
 
-            if (cantidad <= stockProducto) {
-                tipoEnvio = obtenerValorRadioSeleccionado(radioGroupEnvio);
-                tipoDePago = obtenerValorRadioSeleccionado(radioGroupPago);
+            // Consulta el stock actual del producto
+            Call<Producto> stockCall = apiServiceProductos.getProductoById(productoId);
+            stockCall.enqueue(new Callback<Producto>() {
+                @Override
+                public void onResponse(Call<Producto> stockCall, Response<Producto> response) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        Producto producto = response.body();
+                        int stockDisponible = producto.getStock();
 
-                Compra compra = new Compra();
-                compra.setUserId(userId);
-                compra.setProductoId(productoId);
-                compra.setTitulo(titulo);
-                compra.setPrecioCompra(precioCompra);
-                compra.setCantidad(cantidad);
-                compra.setTipoEnvio(tipoEnvio);
-                compra.setTipoDePago(tipoDePago);
+                        // Realiza una comprobación atómica y bloquea otros hilos si la cantidad deseada supera el stock
+                        if (producto != null && producto.intentarBloquearCompra()) {
+                            try {
+                                if (cantidad <= stockDisponible) {
+                                    tipoEnvio = obtenerValorRadioSeleccionado(radioGroupEnvio);
+                                    tipoDePago = obtenerValorRadioSeleccionado(radioGroupPago);
 
-                Call<Compra> call = apiServiceCompras.saveCompra(compra);
-                call.enqueue(new Callback<Compra>() {
-                    @Override
-                    public void onResponse(Call<Compra> call, Response<Compra> response) {
-                        if (response.isSuccessful() && response.body() != null) {
-                            Compra compraConfirmada = response.body();
-                            Log.i("ComprarActivity", "Compra confirmada con éxito. ID: " + compraConfirmada.getId());
+                                    // Añade una variable para mantener los datos originales del producto
+                                    int stockOriginal = producto.getStock();
 
-                            int nuevoStock = stockProducto - cantidad;
-                            actualizarStockProducto(productoId, nuevoStock);
+                                    // Realiza una segunda llamada a getProductoById para obtener los datos actualizados
+                                    Call<Producto> secondStockCall = apiServiceProductos.getProductoById(productoId);
+                                    secondStockCall.enqueue(new Callback<Producto>() {
+                                        @Override
+                                        public void onResponse(Call<Producto> secondStockCall, Response<Producto> secondResponse) {
+                                            if (secondResponse.isSuccessful() && secondResponse.body() != null) {
+                                                Producto updatedProducto = secondResponse.body();
+
+                                                // Mostrar los datos originales y actualizados en la consola
+                                                Log.i("ComprarActivity", "Datos originales del producto: Stock = " + stockOriginal);
+                                                Log.i("ComprarActivity", "Datos actualizados del producto: Stock = " + updatedProducto.getStock());
+
+                                                if (updatedProducto.getStock() == stockOriginal) {
+                                                    Compra compra = new Compra();
+                                                    compra.setUserId(userId);
+                                                    compra.setProductoId(productoId);
+                                                    compra.setTitulo(titulo);
+                                                    compra.setPrecioCompra(precioCompra);
+                                                    compra.setCantidad(cantidad);
+                                                    compra.setTipoEnvio(tipoEnvio);
+                                                    compra.setTipoDePago(tipoDePago);
+
+                                                    // Realiza la compra
+                                                    Call<Compra> compraCall = apiServiceCompras.saveCompra(compra);
+                                                    compraCall.enqueue(new Callback<Compra>() {
+                                                        @Override
+                                                        public void onResponse(Call<Compra> compraCall, Response<Compra> response) {
+                                                            if (response.isSuccessful() && response.body() != null) {
+                                                                Compra compraConfirmada = response.body();
+                                                                Log.i("ComprarActivity", "Compra confirmada con éxito. ID: " + compraConfirmada.getId());
+
+                                                                // Actualiza el stock del producto
+                                                                int nuevoStock = stockDisponible - cantidad;
+                                                                actualizarStockProducto(productoId, nuevoStock); // Agregar esta línea
+
+                                                                // Realiza una segunda verificación del stock antes de confirmar la compra
+                                                                Call<Producto> thirdStockCall = apiServiceProductos.getProductoById(productoId);
+                                                                thirdStockCall.enqueue(new Callback<Producto>() {
+                                                                    @Override
+                                                                    public void onResponse(Call<Producto> thirdStockCall, Response<Producto> thirdResponse) {
+                                                                        if (thirdResponse.isSuccessful() && thirdResponse.body() != null) {
+                                                                            Producto finalUpdatedProducto = thirdResponse.body();
+                                                                            int finalUpdatedStock = finalUpdatedProducto.getStock();
+
+                                                                            if (finalUpdatedStock == nuevoStock) {
+                                                                                // El stock se mantiene igual, lo que significa que la compra se realizó con éxito
+                                                                                mostrarMensajeCompraExitosa();
+                                                                            } else {
+                                                                                // El stock ha cambiado, lo que significa que otro usuario compró el producto
+                                                                                Toast.makeText(ComprarActivity.this, "El stock ha cambiado, la compra no se pudo completar", Toast.LENGTH_SHORT).show();
+                                                                            }
+                                                                        }
+                                                                    }
+
+                                                                    @Override
+                                                                    public void onFailure(Call<Producto> thirdStockCall, Throwable t) {
+                                                                        Toast.makeText(ComprarActivity.this, "Error al verificar el stock del producto", Toast.LENGTH_SHORT).show();
+                                                                    }
+                                                                });
+                                                            } else {
+                                                                Toast.makeText(ComprarActivity.this, "No se pudo confirmar la compra", Toast.LENGTH_SHORT).show();
+                                                                Log.e("ComprarActivity", "Error en la respuesta: " + response.code());
+                                                            }
+                                                        }
+
+                                                        @Override
+                                                        public void onFailure(Call<Compra> compraCall, Throwable t) {
+                                                            Toast.makeText(ComprarActivity.this, "Error en la conexión", Toast.LENGTH_SHORT).show();
+                                                            Log.e("ComprarActivity", "Error de conexión", t);
+                                                        }
+                                                    });
+                                                } else {
+                                                    // Los datos han cambiado, muestra un mensaje de error
+                                                    Toast.makeText(ComprarActivity.this, "El stock ha cambiado desde que iniciaste la compra, inténtalo de nuevo", Toast.LENGTH_SHORT).show();
+                                                }
+                                            }
+                                        }
+
+                                        @Override
+                                        public void onFailure(Call<Producto> secondStockCall, Throwable t) {
+                                            Toast.makeText(ComprarActivity.this, "Error al verificar el stock del producto", Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
+                                } else {
+                                    Toast.makeText(ComprarActivity.this, "La cantidad deseada supera el stock actual (" + stockDisponible + ")", Toast.LENGTH_SHORT).show();
+                                }
+                            } finally {
+                                producto.desbloquearCompra(); // Asegúrate de desbloquear el producto, incluso si ocurre una excepción
+                            }
                         } else {
-                            Toast.makeText(ComprarActivity.this, "No se pudo confirmar la compra", Toast.LENGTH_SHORT).show();
-                            Log.e("ComprarActivity", "Error en la respuesta: " + response.code());
+                            Toast.makeText(ComprarActivity.this, "El producto está siendo comprado por otro usuario, por favor, inténtalo más tarde.",  Toast.LENGTH_SHORT).show();
                         }
                     }
+                }
 
-                    @Override
-                    public void onFailure(Call<Compra> call, Throwable t) {
-                        Toast.makeText(ComprarActivity.this, "Error en la conexión", Toast.LENGTH_SHORT).show();
-                        Log.e("ComprarActivity", "Error de conexión", t);
-                    }
-                });
-            } else {
-                Toast.makeText(this, "La cantidad deseada supera el stock actual (" + stockProducto + ")", Toast.LENGTH_SHORT).show();
-            }
+                @Override
+                public void onFailure(Call<Producto> stockCall, Throwable t) {
+                    Toast.makeText(ComprarActivity.this, "Error al obtener el stock del producto", Toast.LENGTH_SHORT).show();
+                    Log.e("ComprarActivity", "Error al obtener el stock del producto", t);
+                }
+            });
         } else {
             Toast.makeText(this, "Ingresa la cantidad deseada", Toast.LENGTH_SHORT).show();
         }
     }
+
 
     private void actualizarStockProducto(Long productoId, int nuevoStock) {
         Call<Producto> call = apiServiceProductos.getProductoById(productoId);
@@ -234,6 +326,7 @@ public class ComprarActivity extends AppCompatActivity implements CompraAdapter.
     }
 
     private void mostrarMensajeCompraExitosa() {
+        compraConfirmada = true;
         Toast.makeText(ComprarActivity.this, "Compra realizada con éxito", Toast.LENGTH_SHORT).show();
         Intent entradaIntent = new Intent(ComprarActivity.this, EntradaActivity.class);
         startActivity(entradaIntent);

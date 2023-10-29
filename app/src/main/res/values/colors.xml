@@ -3,5 +3,6 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="colorPrimary">#FF5722</color>
+    <color name="colorSpinnerText">#333333</color> <!-- Cambia el valor de color según tu preferencia -->
 
 </resources>

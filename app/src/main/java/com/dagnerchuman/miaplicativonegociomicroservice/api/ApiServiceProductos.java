@@ -46,4 +46,12 @@ public interface ApiServiceProductos {
     @PUT(baseUser + "/{productoId}")
     Call<Producto> actualizarProducto(@Path("productoId") Long productoId, @Body Producto nuevoProducto);
 
+    @Headers("Authorization: Bearer")
+    @GET(baseUser + "/pornegocio/{negocioId}")  // Nuevo endpoint para obtener productos por negocio
+    Call<List<Producto>> getProductosPorNegocio(@Path("negocioId") Long negocioId);
+
+    @Headers("Authorization: Bearer")
+    @POST(baseUser + "/comprar/{productoId}")
+    Call<String> comprarProducto(@Path("productoId") Long productoId, @Query("cantidad") int cantidad);
+
 }

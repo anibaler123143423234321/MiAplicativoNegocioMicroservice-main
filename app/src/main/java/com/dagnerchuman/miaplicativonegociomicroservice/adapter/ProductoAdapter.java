@@ -66,7 +66,7 @@ public class ProductoAdapter extends RecyclerView.Adapter<ProductoAdapter.Produc
 
     @Override
     public void onBindViewHolder(@NonNull ProductoViewHolder holder, int position) {
-        Producto producto = filteredList.get(position); // Cambiar productList a filteredList
+        Producto producto = filteredList.get(position); // Cambiar de filteredList a productList
 
         holder.txtNombre.setText(producto.getNombre());
         //holder.txtCategoria.setText(String.valueOf(producto.getCategoriaId()));
@@ -91,14 +91,6 @@ public class ProductoAdapter extends RecyclerView.Adapter<ProductoAdapter.Produc
             }
         });
 
-        /**
-        holder.btnAddToCart.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                addProductToCart(producto); // Agregar el producto al carrito
-            }
-        });
-*/
     }
 
     @Override
@@ -109,6 +101,7 @@ public class ProductoAdapter extends RecyclerView.Adapter<ProductoAdapter.Produc
     public void filterProductos(String query) {
         query = query.toLowerCase();
         filteredList.clear();
+        Log.d("FilterProductos", "Query: " + query);
 
         if (query.isEmpty()) {
             // Mostrar todos los productos cuando la consulta esté vacía
@@ -124,6 +117,7 @@ public class ProductoAdapter extends RecyclerView.Adapter<ProductoAdapter.Produc
 
         notifyDataSetChanged();
     }
+
 
 
 
@@ -164,19 +158,6 @@ public class ProductoAdapter extends RecyclerView.Adapter<ProductoAdapter.Produc
             Toast.makeText(context, "Usuario no autenticado", Toast.LENGTH_SHORT).show();
         }
     }
-
-    /**
-    private void addProductToCart(Producto producto) {
-        if (!carrito.contains(producto)) {
-            carrito.add(producto); // Agregar el producto al carrito
-            entradaActivity.addToCart(producto); // Llama al método en EntradaActivity para actualizar el carrito
-            Toast.makeText(context, "Producto agregado al carrito", Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(context, "Este producto ya está en el carrito", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-*/
 
     public interface OnProductSelectedListener {
         void onProductSelected(Producto producto);

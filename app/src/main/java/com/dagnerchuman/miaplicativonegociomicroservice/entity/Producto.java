@@ -1,7 +1,10 @@
 package com.dagnerchuman.miaplicativonegociomicroservice.entity;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class Producto implements Serializable {
 
@@ -12,9 +15,10 @@ public class Producto implements Serializable {
     private Double precio;
     private String fechaCreacion;
     private Long negocioId;
-    private Integer stock;
+    private int stock;
+    private static final Map<Long, ReentrantLock> productoLocks = new HashMap<>();
 
-    public Producto(Long id, String nombre, Long categoriaId, String picture, Double precio, String fechaCreacion, Long negocioId) {
+    public Producto(Long id, String nombre, Long categoriaId, String picture, Double precio, String fechaCreacion, Long negocioId, int stock) {
         this.id = id;
         this.nombre = nombre;
         this.categoriaId = categoriaId;
@@ -22,6 +26,7 @@ public class Producto implements Serializable {
         this.precio = precio;
         this.fechaCreacion = fechaCreacion;
         this.negocioId = negocioId;
+        this.stock = stock;
     }
 
     public Long getId() {
@@ -114,4 +119,27 @@ public class Producto implements Serializable {
                 ", stock=" + stock +
                 '}';
     }
+
+    // Otros métodos...
+
+    // Método para intentar bloquear la compra
+    public boolean intentarBloquearCompra() {
+        synchronized (productoLocks) {
+            ReentrantLock productoLock = productoLocks.computeIfAbsent(id, k -> new ReentrantLock());
+            return productoLock.tryLock();
+        }
+    }
+
+    // Método para desbloquear la compra
+    public void desbloquearCompra() {
+        synchronized (productoLocks) {
+            ReentrantLock productoLock = productoLocks.get(id);
+            if (productoLock != null) {
+                productoLock.unlock();
+            }
+        }
+    }
+
 }
+
+

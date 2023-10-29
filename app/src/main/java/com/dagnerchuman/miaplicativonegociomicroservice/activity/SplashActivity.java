@@ -26,7 +26,7 @@ public class SplashActivity extends AppCompatActivity {
         LottieAnimationView splashAnimationView = findViewById(R.id.animation_view);
 
         // Configura la animación y comienza la reproducción
-        splashAnimationView.setAnimation(R.raw.anikihamster);
+        splashAnimationView.setAnimation(R.raw.animation_lo5t8ima);
         splashAnimationView.setRepeatCount(LottieDrawable.INFINITE); // Repetir la animación
         splashAnimationView.playAnimation();
 

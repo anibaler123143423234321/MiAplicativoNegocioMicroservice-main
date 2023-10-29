@@ -78,7 +78,15 @@
                 android:layout_height="wrap_content"
                 android:inputType="textPassword"
                 android:textColor="#000" />
+
+            <ImageView
+                android:id="@+id/togglePasswordVisibility"
+                android:layout_width="24dp"
+                android:layout_height="32dp"
+                android:contentDescription="Alternar visibilidad de la contraseña"
+                android:src="@drawable/ic_eye" />
         </com.google.android.material.textfield.TextInputLayout>
+
 
         <Button
             android:id="@+id/buttonSignIn"

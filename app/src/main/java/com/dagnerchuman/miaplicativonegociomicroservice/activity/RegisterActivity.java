@@ -4,7 +4,6 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -20,8 +19,10 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import com.dagnerchuman.miaplicativonegociomicroservice.R;
 import com.dagnerchuman.miaplicativonegociomicroservice.api.ApiService;
+import com.dagnerchuman.miaplicativonegociomicroservice.api.ApiServiceDni;
 import com.dagnerchuman.miaplicativonegociomicroservice.api.ApiServiceNegocio;
 import com.dagnerchuman.miaplicativonegociomicroservice.api.ConfigApi;
+import com.dagnerchuman.miaplicativonegociomicroservice.entity.DniResponse;
 import com.dagnerchuman.miaplicativonegociomicroservice.entity.Negocio;
 import com.dagnerchuman.miaplicativonegociomicroservice.entity.User;
 import com.google.android.material.textfield.TextInputEditText;
@@ -32,6 +33,11 @@ import java.util.List;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.http.GET;
+import retrofit2.http.Path;
+import retrofit2.http.Query;
 
 public class RegisterActivity extends AppCompatActivity {
 
@@ -60,9 +66,17 @@ public class RegisterActivity extends AppCompatActivity {
     private List<Negocio> listaNegocios;
     private Long selectedNegocioId = null;
     private ImageButton btnBackToLogin;
+    private Button buttonBuscarDNI; // Agrega este botón en tu XML y configúralo
 
     private static final int REQUEST_INTERNET_PERMISSION = 123;
-
+    // Define una interfaz para la API de consulta de DNI
+    public interface ApiServiceDni {
+        @GET("dni/{dni}")
+        Call<DniResponse> getDniData(
+                @Path("dni") String dni,
+                @Query("token") String token
+        );
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -131,6 +145,68 @@ public class RegisterActivity extends AppCompatActivity {
             // Realiza la solicitud de registro
             performSignUp(nombre, apellido, telefono, dni, email, username, password, tipoDoc, departamento, provincia, distrito);
         });
+
+        // Configura el evento click para el botón "Buscar DNI"
+        buttonBuscarDNI = findViewById(R.id.buttonBuscarDNI); // Reemplaza con el ID correcto de tu botón
+
+        buttonBuscarDNI.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String dni = editTextDNI.getText().toString();
+                String token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6ImRhZ25lcl9zbW9vdGhAb3V0bG9vay5jb20ifQ.bbHxz4-4Qh1vJAKDbHqNUZWtHIHMEV46E2tDRH4CdlA";
+
+                // Crear una instancia de Retrofit para la API de consulta de DNI
+                Retrofit retrofit = new Retrofit.Builder()
+                        .baseUrl("https://dniruc.apisperu.com/api/v1/")
+                        .addConverterFactory(GsonConverterFactory.create())
+                        .build();
+
+                // Crear una instancia de la interfaz de la API
+                ApiServiceDni apiServiceDni = retrofit.create(ApiServiceDni.class);
+
+                // Realizar la solicitud para obtener los datos del DNI
+                Call<DniResponse> call = apiServiceDni.getDniData(dni, token);
+
+                call.enqueue(new Callback<DniResponse>() {
+                    @Override
+                    public void onResponse(Call<DniResponse> call, Response<DniResponse> response) {
+                        if (response.isSuccessful()) {
+                            DniResponse dniResponse = response.body();
+                            if (dniResponse != null && dniResponse.isSuccess()) {
+                                String nombreCompleto = dniResponse.getNombres();
+                                String apellidosCompletos = dniResponse.getApellidoPaterno() + " " + dniResponse.getApellidoMaterno();
+                                // Completa los campos de nombre y apellido
+                                editTextNombre.setText(nombreCompleto);
+                                editTextApellido.setText(apellidosCompletos);
+
+                                // Deshabilita los campos de nombre y apellido
+                                editTextNombre.setEnabled(false);
+                                editTextApellido.setEnabled(false);
+
+                            } else {
+                                // Manejar el caso en que la API no devuelva datos válidos
+                                Toast.makeText(RegisterActivity.this, "No se encontraron datos para el DNI proporcionado", Toast.LENGTH_SHORT).show();
+                            }
+                        } else {
+                            // Manejar el caso en que la solicitud a la API no sea exitosa
+                            Toast.makeText(RegisterActivity.this, "Error al obtener datos del DNI", Toast.LENGTH_SHORT).show();
+                            Log.d("MiApp", "URL de solicitud: " + call.request().url());
+
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<DniResponse> call, Throwable t) {
+                        // Manejar el error de la solicitud de red aquí
+                        Log.e("MiApp", "Error en la solicitud: " + t.getMessage());
+                        Toast.makeText(RegisterActivity.this, "Error en la solicitud: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        });
+
+
+
 
         // Configura el evento de selección del Spinner de negocios
         spinnerNegocios.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {

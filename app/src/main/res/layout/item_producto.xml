@@ -80,24 +80,18 @@
         android:text="Stock del producto dinámico"
         android:textSize="16sp"
         android:layout_marginTop="4dp"/>
+
     <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
+        android:layout_width="352dp"
+        android:layout_height="4dp"
         android:background="#C0C0C0" />
     <!-- Botones en un LinearLayout horizontal -->
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="45dp"
         android:layout_height="wrap_content"
         android:layout_gravity="end"
         android:layout_marginTop="8dp"
         android:orientation="horizontal">
-        <Button
-            android:id="@+id/btnComprar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/ic_add_shop"
-            android:textColor="#FFFFFF"
-            android:textSize="16sp" />
 
         <!--<Button
             android:id="@+id/btnAddToCart"
@@ -112,4 +106,12 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="#C0C0C0" />
+
+    <Button
+        android:id="@+id/btnComprar"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:background="@drawable/ic_add_shop"
+        android:textColor="#FFFFFF"
+        android:textSize="16sp" />
 </LinearLayout>

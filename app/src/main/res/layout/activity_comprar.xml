@@ -10,10 +10,9 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
+        android:background="#000000"
         android:elevation="4dp"
-        android:layout_alignParentTop="true"
-        android:title="" />
+        android:layout_alignParentTop="true"/>
 
     <ImageButton
         android:id="@+id/btnBack"
@@ -40,7 +39,7 @@
         android:id="@+id/txtProductoId"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="ID del Producto: "
+        android:text="Codigo del Producto: "
         android:textSize="18sp"
         android:textStyle="bold"
         android:layout_below="@id/toolbar"
@@ -62,7 +61,7 @@
         android:id="@+id/txtNombreProducto"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Nombre del Producto: "
+        android:text="Nombre de Producto: "
         android:textSize="18sp"
         android:textStyle="bold"
         android:layout_below="@id/txtProductoId"

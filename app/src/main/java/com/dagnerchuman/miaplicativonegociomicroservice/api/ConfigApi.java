@@ -17,6 +17,7 @@ public class ConfigApi {
     private static ApiServiceProductos apiServiceProducto;
     private static ApiServiceCompras apiServiceCompra;
     private static ApiServiceCategorias apiServiceCategorias;
+    private static ApiServiceDni apiServiceDni;
 
     private static String authToken = "";
 
@@ -94,6 +95,7 @@ public class ConfigApi {
         }
         return apiServiceCategorias;
     }
+
 
     private static OkHttpClient createOkHttpClient(Context context) {
         OkHttpClient.Builder httpClient = new OkHttpClient.Builder();

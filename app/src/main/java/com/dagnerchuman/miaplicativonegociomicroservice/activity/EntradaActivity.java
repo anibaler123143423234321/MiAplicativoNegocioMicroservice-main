@@ -20,6 +20,7 @@ import androidx.appcompat.widget.Toolbar;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -82,6 +83,7 @@ public class EntradaActivity extends AppCompatActivity implements ProductoAdapte
 
         // Abre el SearchView automáticamente
         searchView.setIconified(false);
+        searchView.setQuery("", true); // El segundo parámetro (false) evita que se ejecute la búsqueda automáticamente
 
         // Encuentra el contenedor de botones de categoría en tu diseño
         categoryButtonContainer = findViewById(R.id.categoryButtonContainer);
@@ -100,22 +102,25 @@ public class EntradaActivity extends AppCompatActivity implements ProductoAdapte
         recyclerViewProductos.setAdapter(adapter);
 
         // Configura el RecyclerView con el adaptador
-        recyclerViewProductos.setLayoutManager(new LinearLayoutManager(this));
+        recyclerViewProductos.setLayoutManager(new GridLayoutManager(this, 2));
 
         SharedPreferences sharedPreferences = getSharedPreferences("UserDataUser", MODE_PRIVATE);
         Long userNegocioId = sharedPreferences.getLong("userNegocioId", -1);
 
-
-        obtenerProductosDelNegocio(userNegocioId);
         TextView toolbarTitle = customTitle.findViewById(R.id.toolbar_title);
         toolbarTitle.setText(nombreNegocio);
 
+        // Configura el título del negocio (asegúrate de que tengas una función obtenerNombreNegocio definida)
+        obtenerNombreNegocio();
+
+        obtenerProductosDelNegocio(userNegocioId);
 
         // Realiza una llamada a la API para obtener las categorías
         Log.d("EntradaActivity", "Obteniendo categorías...");
         obtenerCategorias(userNegocioId);
 
-
+        Log.d("EntradaActivity", "Actividad de entrada creada correctamente.");
+        Log.d("EntradaActivity", "Número de productos cargados: " + productosList.size());
 
         // Configuración del botón de navegación
         btnNavigation.setOnClickListener(new View.OnClickListener() {
@@ -180,11 +185,10 @@ public class EntradaActivity extends AppCompatActivity implements ProductoAdapte
 
     }
 
-    // Método para obtener los productos del mismo negocio que el usuario
     private void obtenerProductosDelNegocio(Long userNegocioId) {
         ApiServiceProductos apiService = ConfigApi.getInstanceProducto(this);
 
-        Call<List<Producto>> call = apiService.getAllProductos();
+        Call<List<Producto>> call = apiService.getProductosPorNegocio(userNegocioId);  // Utiliza el nuevo endpoint
 
         call.enqueue(new Callback<List<Producto>>() {
             @Override
@@ -192,20 +196,14 @@ public class EntradaActivity extends AppCompatActivity implements ProductoAdapte
                 if (response.isSuccessful()) {
                     List<Producto> productos = response.body();
 
-                    // Filtra los productos que pertenecen al mismo negocio que el usuario
-                    List<Producto> productosDelNegocio = new ArrayList<>();
-                    for (Producto producto : productos) {
-                        if (producto.getNegocioId().equals(userNegocioId)) {
-                            productosDelNegocio.add(producto);
-                        }
-                    }
+                    // Borra la lista de productos existente y agrega los productos del negocio
+                    productosList.clear();
+                    productosList.addAll(productos);
 
-                    // Actualiza la lista de productos en el adaptador
-                    productosList.addAll(productosDelNegocio);
-
-                    Log.d("API Response", "Respuesta exitosa");
+                    // Notifica al adaptador sobre los cambios
+                    adapter.notifyDataSetChanged();
                 } else {
-                    Log.e("API Response", "Respuesta no exitosa: " + response.code());
+                    Log.e("API Response ProductosDelNegocio", "Respuesta no exitosa: " + response.code());
                 }
             }
 
@@ -215,6 +213,7 @@ public class EntradaActivity extends AppCompatActivity implements ProductoAdapte
             }
         });
     }
+
 
     private void mostrarPopupMisDatos() {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
@@ -291,6 +290,8 @@ public class EntradaActivity extends AppCompatActivity implements ProductoAdapte
                         if (toolbarTitle != null) {
                             toolbarTitle.setText("Bienvenido a " + nombreNegocio);
                         }
+                        // Agrega un log para verificar el nombre del negocio
+                        Log.d("EntradaActivity", "Nombre del negocio: " + nombreNegocio);
                     }
                 }
             }
@@ -340,7 +341,7 @@ public class EntradaActivity extends AppCompatActivity implements ProductoAdapte
                         }
                     }
                 } else {
-                    Log.e("API Response", "Respuesta no exitosa: " + response.code());
+                    Log.e("API Response CATEGORIAS", "Respuesta no exitosa: " + response.code());
                     Log.e("API Response", "Estado del servidor: " + response.message());
                 }
             }

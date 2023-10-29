@@ -24,5 +24,32 @@
         <item name="android:queryHint">Busca tu producto!</item>
     </style>
 
+    <style name="SpinnerStyle">
+        <item name="android:background">@drawable/background_circular</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">16dp</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@color/colorPrimary</item>
+    </style>
+
+    <style name="MyHintTextAppearance" parent="TextAppearance.AppCompat">
+        <item name="android:textColor">#FF0000</item>
+        <item name="android:textSize">14sp</item>
+        <!-- Otros atributos de estilo del texto del hint -->
+    </style>
+
+
+    <style name="MyTextInputLayoutStyle" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="boxBackgroundColor">@android:color/white</item>
+        <item name="boxBackgroundMode">outline</item>
+        <item name="boxCornerRadiusBottomEnd">4dp</item>
+        <item name="boxCornerRadiusBottomStart">4dp</item>
+        <item name="boxCornerRadiusTopEnd">4dp</item>
+        <item name="boxCornerRadiusTopStart">4dp</item>
+        <item name="hintTextAppearance">@style/MyHintTextAppearance</item>
+    </style>
 
 </resources>

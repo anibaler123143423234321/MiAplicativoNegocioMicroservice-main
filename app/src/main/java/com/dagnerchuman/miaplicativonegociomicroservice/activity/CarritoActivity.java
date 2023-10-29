@@ -90,8 +90,10 @@ public class CarritoActivity extends AppCompatActivity {
                 if (productosEnCarrito != null && !productosEnCarrito.isEmpty()) {
                     String tipoEnvio = spinnerTipoEnvio.getSelectedItem().toString();
                     String tipoDePago = spinnerTipoDePago.getSelectedItem().toString();
+                    int totalCompras = productosEnCarrito.size();
+                    final int[] comprasExitosas = {0}; // Variable final para contar compras exitosas
 
-                    for (int i = 0; i < productosEnCarrito.size(); i++) {
+                    for (int i = 0; i < totalCompras; i++) {
                         Producto producto = productosEnCarrito.get(i);
                         int cantidadDeseada = cantidadesDeseadas.get(i);
 
@@ -104,52 +106,88 @@ public class CarritoActivity extends AppCompatActivity {
                         compra.setTipoDePago(tipoDePago);
                         compra.setCantidad(cantidadDeseada);
 
-                        Call<Compra> call = apiServiceCompras.saveCompra(compra);
+                        Call<Producto> stockCall = apiServiceProductos.getProductoById(producto.getId());
 
-                        call.enqueue(new Callback<Compra>() {
+                        stockCall.enqueue(new Callback<Producto>() {
                             @Override
-                            public void onResponse(Call<Compra> call, Response<Compra> response) {
-                                if (response.isSuccessful()) {
-                                    Compra compraGuardada = response.body();
-                                    Toast.makeText(CarritoActivity.this, "Compra realizada con éxito", Toast.LENGTH_SHORT).show();
+                            public void onResponse(Call<Producto> call, Response<Producto> response) {
+                                if (response.isSuccessful() && response.body() != null) {
+                                    Producto productoActualizado = response.body();
+                                    int stockDisponible = productoActualizado.getStock();
 
-                                    // Actualiza el stock del producto restando la cantidad deseada
-                                    producto.setStock(producto.getStock() - cantidadDeseada);
-                                    Call<Producto> updateCall = apiServiceProductos.actualizarProducto(producto.getId(), producto);
-                                    updateCall.enqueue(new Callback<Producto>() {
-                                        @Override
-                                        public void onResponse(Call<Producto> call, Response<Producto> response) {
-                                            if (response.isSuccessful()) {
-                                                // El stock del producto se ha actualizado con éxito
-                                            } else {
-                                                // Maneja el error en la actualización del producto
+                                    // Verificar si la cantidad deseada es menor o igual al stock disponible
+                                    if (cantidadDeseada <= stockDisponible) {
+                                        Call<Compra> compraCall = apiServiceCompras.saveCompra(compra);
+
+                                        compraCall.enqueue(new Callback<Compra>() {
+                                            @Override
+                                            public void onResponse(Call<Compra> call, Response<Compra> response) {
+                                                if (response.isSuccessful()) {
+                                                    // Compra exitosa
+                                                    comprasExitosas[0]++;
+
+                                                    // Actualizar el stock del producto
+                                                    productoActualizado.setStock(stockDisponible - cantidadDeseada);
+                                                    Call<Producto> updateCall = apiServiceProductos.actualizarProducto(producto.getId(), productoActualizado);
+
+                                                    updateCall.enqueue(new Callback<Producto>() {
+                                                        @Override
+                                                        public void onResponse(Call<Producto> call, Response<Producto> response) {
+                                                            if (response.isSuccessful()) {
+                                                                // El stock del producto se ha actualizado con éxito
+                                                            } else {
+                                                                // Manejar errores en la actualización del producto
+                                                            }
+                                                        }
+
+                                                        @Override
+                                                        public void onFailure(Call<Producto> call, Throwable t) {
+                                                            // Manejar errores en la llamada al actualizarProducto
+                                                        }
+                                                    });
+
+                                                    // Si todas las compras son exitosas, redirige a la actividad de confirmación
+                                                    if (comprasExitosas[0] == totalCompras) {
+                                                        Toast.makeText(CarritoActivity.this, "Todas las compras se realizaron con éxito", Toast.LENGTH_SHORT).show();
+                                                        Intent confirmationIntent = new Intent(CarritoActivity.this, EntradaActivity.class);
+                                                        startActivity(confirmationIntent);
+                                                        finish();
+                                                    }
+                                                } else {
+                                                    // Manejar errores en la compra
+                                                    Toast.makeText(CarritoActivity.this, "Error al realizar la compra", Toast.LENGTH_SHORT).show();
+                                                }
                                             }
-                                        }
 
-                                        @Override
-                                        public void onFailure(Call<Producto> call, Throwable t) {
-                                            // Maneja el error de la llamada al actualizarProducto
-                                        }
-                                    });
-
-                                    Intent confirmationIntent = new Intent(CarritoActivity.this, EntradaActivity.class);
-                                    startActivity(confirmationIntent);
-                                    finish();
+                                            @Override
+                                            public void onFailure(Call<Compra> call, Throwable t) {
+                                                // Manejar errores en la llamada de compra
+                                                Toast.makeText(CarritoActivity.this, "Error al realizar la compra", Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
+                                    } else {
+                                        // Manejar errores cuando la cantidad deseada supera el stock
+                                        Toast.makeText(CarritoActivity.this, "La cantidad deseada para '" + producto.getNombre() + "' supera el stock actual (" + stockDisponible + ")", Toast.LENGTH_SHORT).show();
+                                    }
                                 } else {
-                                    Toast.makeText(CarritoActivity.this, "Error al realizar la compra", Toast.LENGTH_SHORT).show();
+                                    // Manejar errores al obtener el stock del producto
+                                    Toast.makeText(CarritoActivity.this, "Error al obtener el stock del producto", Toast.LENGTH_SHORT).show();
                                 }
                             }
 
                             @Override
-                            public void onFailure(Call<Compra> call, Throwable t) {
-                                Toast.makeText(CarritoActivity.this, "Error al realizar la compra", Toast.LENGTH_SHORT).show();
+                            public void onFailure(Call<Producto> call, Throwable t) {
+                                // Manejar errores en la llamada para obtener el stock del producto
+                                Toast.makeText(CarritoActivity.this, "Error al obtener el stock del producto", Toast.LENGTH_SHORT).show();
                             }
                         });
                     }
                 } else {
+                    // Manejar errores cuando el carrito está vacío
                     Toast.makeText(CarritoActivity.this, "El carrito está vacío", Toast.LENGTH_SHORT).show();
                 }
             }
         });
+
     }
 }

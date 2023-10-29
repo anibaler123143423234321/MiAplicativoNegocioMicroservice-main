@@ -1,6 +1,8 @@
 package com.dagnerchuman.miaplicativonegociomicroservice.entity;
 
-public class Compra {
+import java.io.Serializable;
+
+public class Compra implements Serializable {
     private Long id;
     private Long userId;
     private Long productoId;
