@@ -1,5 +1,7 @@
 package com.dagnerchuman.miaplicativonegociomicroservice.adapter;
 
+import static org.bouncycastle.asn1.x500.style.RFC4519Style.cn;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -22,8 +24,8 @@ import com.dagnerchuman.miaplicativonegociomicroservice.R;
 import com.dagnerchuman.miaplicativonegociomicroservice.activity.ComprarActivity;
 import com.dagnerchuman.miaplicativonegociomicroservice.activity.EntradaActivity;
 import com.dagnerchuman.miaplicativonegociomicroservice.entity.Producto;
+import cn.pedant.SweetAlert.SweetAlertDialog;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -141,7 +143,9 @@ public class ProductoAdapter extends RecyclerView.Adapter<ProductoAdapter.Produc
     }
 
     private void handleCompra(Producto producto) {
-        SharedPreferences sharedPreferences = context.getSharedPreferences("UserDataUser", Context.MODE_PRIVATE);
+        if (producto.getStock() > 0) {
+
+            SharedPreferences sharedPreferences = context.getSharedPreferences("UserDataUser", Context.MODE_PRIVATE);
         long userId = sharedPreferences.getLong("userId", -1);
 
         if (userId != -1) {
@@ -155,7 +159,16 @@ public class ProductoAdapter extends RecyclerView.Adapter<ProductoAdapter.Produc
             intent.putExtra("stockProducto", producto.getStock());
             context.startActivity(intent);
         } else {
-            Toast.makeText(context, "Usuario no autenticado", Toast.LENGTH_SHORT).show();
+            // Si no estás autenticado, muestra una SweetAlert de error
+            new SweetAlertDialog(context, SweetAlertDialog.ERROR_TYPE)
+                    .setTitleText("Error")
+                    .setContentText("Usuario no autenticado")
+                    .show();        }
+        } else {
+            new SweetAlertDialog(context, SweetAlertDialog.ERROR_TYPE)
+                    .setTitleText("Error")
+                    .setContentText("Producto esta agotado")
+                    .show();
         }
     }
 

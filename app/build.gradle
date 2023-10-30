@@ -63,5 +63,7 @@ dependencies {
 
     implementation 'com.squareup.picasso:picasso:2.71828' // La versión puede variar
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0' //refresh
+    implementation 'com.github.f0ris.sweetalert:library:1.5.6'
+
 
 }
