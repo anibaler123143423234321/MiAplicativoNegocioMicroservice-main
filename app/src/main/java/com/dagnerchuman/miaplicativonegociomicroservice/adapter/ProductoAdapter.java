@@ -39,7 +39,7 @@ public class ProductoAdapter extends RecyclerView.Adapter<ProductoAdapter.Produc
     private List<Producto> productosSeleccionados = new ArrayList<>(); // Lista de productos seleccionados
 
 
-    public ProductoAdapter(Context context, List<Producto> productList, EntradaActivity entradaActivity) {
+    public ProductoAdapter(Context context, List<Producto> productList) {
         this.context = context;
         this.productList = productList;
         this.filteredList = new ArrayList<>(productList);

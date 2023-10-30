@@ -98,7 +98,7 @@ public class EntradaActivity extends AppCompatActivity implements ProductoAdapte
         obtenerNombreNegocio();
 
         // Inicializa el adaptador para el RecyclerView de búsqueda
-        adapter = new ProductoAdapter(this, productosList, this); // Pasa "this" como la referencia a EntradaActivity
+        adapter = new ProductoAdapter(this, productosList); // Pasa "this" como la referencia a EntradaActivity
         recyclerViewProductos.setAdapter(adapter);
 
         // Configura el RecyclerView con el adaptador
@@ -211,17 +211,20 @@ public class EntradaActivity extends AppCompatActivity implements ProductoAdapte
                 if (response.isSuccessful()) {
                     List<Producto> productos = response.body();
 
-                    // Borra la lista de productos existente
+// Borra la lista de productos existente
                     productosList.clear();
 
-                    // Agrega solo los primeros 10 productos
+// Agrega solo los primeros 10 productos
                     int maxProductos = Math.min(productos.size(), 10);
                     for (int i = 0; i < maxProductos; i++) {
                         productosList.add(productos.get(i));
                     }
 
-                    // Notifica al adaptador sobre los cambios
-                    adapter.notifyDataSetChanged();
+// Crea un nuevo adaptador con la lista actualizada
+                    adapter = new ProductoAdapter(EntradaActivity.this, productosList);
+
+// Establece el adaptador en tu RecyclerView o ListView (dependiendo de lo que estés utilizando)
+                    recyclerViewProductos.setAdapter(adapter);
                 } else {
                     Log.e("API Response ProductosDelNegocio", "Respuesta no exitosa: " + response.code());
                 }
