@@ -165,10 +165,12 @@ public class ProductoAdapter extends RecyclerView.Adapter<ProductoAdapter.Produc
                     .setContentText("Usuario no autenticado")
                     .show();        }
         } else {
-            new SweetAlertDialog(context, SweetAlertDialog.ERROR_TYPE)
-                    .setTitleText("Error")
-                    .setContentText("Producto esta agotado")
+            // Muestra una SweetAlert de advertencia si el producto está agotado
+            new SweetAlertDialog(context, SweetAlertDialog.WARNING_TYPE)
+                    .setTitleText("Producto agotado")
+                    .setContentText("Este producto está fuera de stock.")
                     .show();
+
         }
     }
 

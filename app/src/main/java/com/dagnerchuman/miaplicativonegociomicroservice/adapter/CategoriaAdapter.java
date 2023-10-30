@@ -27,6 +27,8 @@ import com.dagnerchuman.miaplicativonegociomicroservice.entity.Producto;
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.pedant.SweetAlert.SweetAlertDialog;
+
 public class CategoriaAdapter extends RecyclerView.Adapter<CategoriaAdapter.ProductoViewHolder> {
     private Context context;
     private List<Producto> productList;
@@ -81,16 +83,27 @@ public class CategoriaAdapter extends RecyclerView.Adapter<CategoriaAdapter.Prod
         holder.btnAnadirCarrito.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Cambia el estado de selección del producto
-                producto.setSelected(!producto.isSelected());
+                if (producto.getStock() > 0) {
+                    // Verifica si el stock del producto es mayor que 0
+                    // Si el stock es 0, no se permite añadirlo al carrito
+                    // Cambia el estado de selección del producto
+                    producto.setSelected(!producto.isSelected());
 
-                // Notifica al adaptador que los datos han cambiado
-                notifyDataSetChanged();
+                    // Notifica al adaptador que los datos han cambiado
+                    notifyDataSetChanged();
 
-                // Muestra un mensaje al usuario
-                Toast.makeText(context, "Producto añadido al carrito", Toast.LENGTH_SHORT).show();
+                    // Muestra un mensaje al usuario
+                    Toast.makeText(context, "Producto añadido al carrito", Toast.LENGTH_SHORT).show();
+                } else {
+                    // Muestra una SweetAlert de advertencia si el producto está agotado
+                    new SweetAlertDialog(context, SweetAlertDialog.WARNING_TYPE)
+                            .setTitleText("Producto agotado")
+                            .setContentText("Este producto está fuera de stock.")
+                            .show();
+                }
             }
         });
+
 
 
 
@@ -120,26 +133,32 @@ public class CategoriaAdapter extends RecyclerView.Adapter<CategoriaAdapter.Prod
     }
 
     private void handleCompra(Producto producto) {
-        // Verifica si el usuario está autenticado
-        SharedPreferences sharedPreferences = context.getSharedPreferences("UserDataUser", Context.MODE_PRIVATE);
-        long userId = sharedPreferences.getLong("userId", -1);
+        if (producto.getStock() > 0) {
 
-        if (userId != -1) {
-            // Crea un Intent para iniciar ComprarActivity
-            Intent intent = new Intent(context, ComprarActivity.class);
+            SharedPreferences sharedPreferences = context.getSharedPreferences("UserDataUser", Context.MODE_PRIVATE);
+            long userId = sharedPreferences.getLong("userId", -1);
 
-            // Pasa los datos del producto como extras en el Intent
-            intent.putExtra("userId", userId);
-            intent.putExtra("productoId", producto.getId());
-            intent.putExtra("nombreProducto", producto.getNombre());
-            intent.putExtra("precioProducto", producto.getPrecio());
-            intent.putExtra("stockProducto", producto.getStock());
-            intent.putExtra("imagenProducto", producto.getPicture());
-
-            // Inicia ComprarActivity
-            context.startActivity(intent);
+            if (userId != -1) {
+                Intent intent = new Intent(context, ComprarActivity.class);
+                intent.putExtra("userId", userId);
+                intent.putExtra("productoId", producto.getId());
+                intent.putExtra("nombreProducto", producto.getNombre());
+                intent.putExtra("categoriaProducto", producto.getCategoriaId());
+                intent.putExtra("precioProducto", producto.getPrecio());
+                intent.putExtra("imagenProducto", producto.getPicture());
+                intent.putExtra("stockProducto", producto.getStock());
+                context.startActivity(intent);
+            } else {
+                // Si no estás autenticado, muestra una SweetAlert de error
+                new SweetAlertDialog(context, SweetAlertDialog.ERROR_TYPE)
+                        .setTitleText("Error")
+                        .setContentText("Usuario no autenticado")
+                        .show();        }
         } else {
-            Toast.makeText(context, "Usuario no autenticado", Toast.LENGTH_SHORT).show();
+            new SweetAlertDialog(context, SweetAlertDialog.ERROR_TYPE)
+                    .setTitleText("Error")
+                    .setContentText("Producto esta agotado")
+                    .show();
         }
     }
 
