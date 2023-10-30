@@ -181,8 +181,7 @@ public class LoginActivity extends AppCompatActivity {
         mainIntent.putExtra("userId", user.getId());
         mainIntent.putExtra("userNegocioId", user.getNegocioId());
 
-        // Inicia la actividad MainActivity
-        startActivity(mainIntent);
+
     }
 
 

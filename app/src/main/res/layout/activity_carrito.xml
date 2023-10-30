@@ -55,13 +55,13 @@ app:layout_behavior="@string/appbar_scrolling_view_behavior" />
         style="@style/SpinnerStyle" />
 
 
-    <!-- Estilo para el TextView del Total de Compra -->
+    <!-- Estilo para el TextView del Total de Compra
 <TextView
 android:id="@+id/txtTotalCompra"
 android:layout_width="wrap_content"
 android:layout_height="wrap_content"
 android:text="Total de Compra: $0.00"
-style="@style/TextAppearance.AppCompat.Body1" />
+style="@style/TextAppearance.AppCompat.Body1" />  -->
 
     <!-- Estilo para el botón de Confirmar Compra -->
 <Button

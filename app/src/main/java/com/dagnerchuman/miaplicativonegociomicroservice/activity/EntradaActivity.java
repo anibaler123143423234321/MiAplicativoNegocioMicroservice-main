@@ -23,6 +23,7 @@ import androidx.appcompat.widget.SearchView;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -68,6 +69,7 @@ public class EntradaActivity extends AppCompatActivity implements ProductoAdapte
     private TextView toolbarTitle; // Declarar la variable para el título
     private LinearLayout categoryButtonContainer;
     private List<Long> categoriasSeleccionadas = new ArrayList<>();
+    private SwipeRefreshLayout swipeRefreshLayout;
 
 
     @Override
@@ -80,6 +82,7 @@ public class EntradaActivity extends AppCompatActivity implements ProductoAdapte
         searchView = findViewById(R.id.searchView);
         recyclerViewProductos = findViewById(R.id.recyclerView);
         productosList = new ArrayList<>();
+        SwipeRefreshLayout swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
 
         // Abre el SearchView automáticamente
         searchView.setIconified(false);
@@ -114,6 +117,16 @@ public class EntradaActivity extends AppCompatActivity implements ProductoAdapte
         obtenerNombreNegocio();
 
         obtenerProductosDelNegocio(userNegocioId);
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                // Realiza la operación de actualización aquí, por ejemplo, cargar los productos nuevamente
+                obtenerProductosDelNegocio(userNegocioId);
+
+                // Detén la animación de actualización una vez que la operación de actualización esté completa
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        });
 
         // Realiza una llamada a la API para obtener las categorías
         Log.d("EntradaActivity", "Obteniendo categorías...");
@@ -356,12 +369,21 @@ public class EntradaActivity extends AppCompatActivity implements ProductoAdapte
                             categoryButton.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View view) {
-                                    Log.d("Categoría seleccionada", "ID: " + categoria.getId() + ", Nombre: " + categoria.getNombre());
+                                    long categoriaId = categoria.getId();
+                                    Log.d("Categoría seleccionada", "ID: " + categoriaId + ", Nombre: " + categoria.getNombre());
+
+                                    // Guardar el ID de la categoría en SharedPreferences
+                                    SharedPreferences sharedPreferences = getSharedPreferences("CategoriaPrefs", Context.MODE_PRIVATE);
+                                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                                    editor.putLong("categoriaId", categoriaId);
+                                    editor.apply();
+
+                                    // Iniciar la actividad CategoriaProductosActivity
                                     Intent categoriaIntent = new Intent(EntradaActivity.this, CategoriaProductosActivity.class);
-                                    categoriaIntent.putExtra("categoriaSeleccionada", categoria.getId());
                                     startActivity(categoriaIntent);
                                 }
                             });
+
 
                             categoryButtonContainer.addView(categoryButton);
                         }

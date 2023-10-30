@@ -84,20 +84,16 @@ public class CategoriaProductosActivity extends AppCompatActivity {
         });
 
 
-
-        // Obtén las preferencias compartidas
+// Obtén las preferencias compartidas
         SharedPreferences sharedPreferences = getSharedPreferences("CategoriaPrefs", Context.MODE_PRIVATE);
 
 // Recupera el valor almacenado en las preferencias compartidas
-        long categoriaId = sharedPreferences.getLong("categoriaId", -1);
+        long categoriaId = sharedPreferences.getLong("categoriaId", -1); // -1 es el valor predeterminado si no se encuentra
 
-        if (categoriaId != -1) {
-            // Si se recuperó un valor válido, puedes usarlo en tu actividad
-            // Realiza la lógica necesaria con el valor de 'categoriaId' aquí
-        } else {
-            // Maneja el caso donde no se encontró el valor en las preferencias compartidas
-            Log.e("Categoría no válida", "No se encontró un valor válido en las preferencias compartidas.");
-        }
+// Registra el ID de la categoría recibida en el log
+        Log.d("Categoría recibida", "ID: " + categoriaId);
+
+// Ahora puedes usar el valor de 'categoriaId' en tu actividad para cargar productos de la categoría seleccionada.
 
 
         // Registra el ID de la categoría seleccionada en el log
@@ -110,8 +106,8 @@ public class CategoriaProductosActivity extends AppCompatActivity {
     private void obtenerProductosYFiltrarPorCategoria(final long categoriaId) {
         ApiServiceProductos apiServiceProductos = ConfigApi.getInstanceProducto(this);
 
-        // Realiza una llamada a la API para obtener todos los productos
-        Call<List<Producto>> call = apiServiceProductos.getAllProductos();
+        // Realiza una llamada a la API para obtener productos por categoría
+        Call<List<Producto>> call = apiServiceProductos.getProductosPorCategoria(categoriaId);
 
         call.enqueue(new Callback<List<Producto>>() {
             @Override
@@ -120,16 +116,8 @@ public class CategoriaProductosActivity extends AppCompatActivity {
                     List<Producto> productos = response.body();
                     Log.d("Productos cargados", "Cantidad: " + productos.size());
 
-                    // Filtra los productos por categoría
-                    List<Producto> productosFiltrados = new ArrayList<>();
-                    for (Producto producto : productos) {
-                        if (producto.getCategoriaId() == categoriaId) {
-                            productosFiltrados.add(producto);
-                        }
-                    }
-
                     // Registra los productos filtrados en el log
-                    for (Producto producto : productosFiltrados) {
+                    for (Producto producto : productos) {
                         Log.d("Producto cargado", "Nombre: " + producto.getNombre());
                         Log.d("Producto cargado", "Categoría ID: " + producto.getCategoriaId());
                         Log.d("Producto cargado", "Imagen: " + producto.getPicture());
@@ -138,7 +126,7 @@ public class CategoriaProductosActivity extends AppCompatActivity {
                         Log.d("Producto cargado", "Stock: " + producto.getStock());
                     }
 
-                    productList.addAll(productosFiltrados);
+                    productList.addAll(productos);
                     adapter.notifyDataSetChanged();
                 } else {
                     Log.e("API Response", "Respuesta no exitosa: " + response.code());

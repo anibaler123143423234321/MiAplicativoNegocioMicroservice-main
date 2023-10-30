@@ -54,4 +54,9 @@ public interface ApiServiceProductos {
     @POST(baseUser + "/comprar/{productoId}")
     Call<String> comprarProducto(@Path("productoId") Long productoId, @Query("cantidad") int cantidad);
 
+    @Headers("Authorization: Bearer")
+    @GET(baseUser + "/porcategoria/{categoriaId}")
+    Call<List<Producto>> getProductosPorCategoria(@Path("categoriaId") Long categoriaId);
+
+
 }
