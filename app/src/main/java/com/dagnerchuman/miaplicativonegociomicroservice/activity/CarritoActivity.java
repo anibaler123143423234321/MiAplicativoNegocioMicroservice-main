@@ -1,9 +1,11 @@
 package com.dagnerchuman.miaplicativonegociomicroservice.activity;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -39,6 +41,7 @@ public class CarritoActivity extends AppCompatActivity {
     private ApiServiceCompras apiServiceCompras;
     private ApiServiceProductos apiServiceProductos;
     private boolean productosCargados = false; // Bandera para rastrear si los productos ya se han cargado
+    private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,6 +101,21 @@ public class CarritoActivity extends AppCompatActivity {
         btnFinalizarCompra.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                progressDialog = new ProgressDialog(CarritoActivity.this);
+                progressDialog.setMessage("Realizando compras...");
+                progressDialog.setCancelable(false);
+                progressDialog.show();
+                // Agrega una espera de 2.5 segundos antes de continuar con la compra
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        realizarCompras();
+                    }
+                }, 2500); // Espera de 2.5 segundos antes de realizar las compras
+            }
+
+
+            private void realizarCompras() {
                 if (productosEnCarrito != null && !productosEnCarrito.isEmpty()) {
                     String tipoEnvio = spinnerTipoEnvio.getSelectedItem().toString();
                     String tipoDePago = spinnerTipoDePago.getSelectedItem().toString();
@@ -159,12 +177,14 @@ public class CarritoActivity extends AppCompatActivity {
 
                                                     // Si todas las compras son exitosas, redirige a la actividad de confirmación
                                                     if (comprasExitosas[0] == totalCompras) {
+                                                        progressDialog.dismiss(); // Ocultar el diálogo de carga
                                                         Toast.makeText(CarritoActivity.this, "Todas las compras se realizaron con éxito", Toast.LENGTH_SHORT).show();
                                                         Intent confirmationIntent = new Intent(CarritoActivity.this, EntradaActivity.class);
                                                         startActivity(confirmationIntent);
                                                         finish();
                                                     }
                                                 } else {
+                                                    progressDialog.dismiss(); // Ocultar el diálogo de carga
                                                     // Manejar errores en la compra
                                                     Toast.makeText(CarritoActivity.this, "Error al realizar la compra", Toast.LENGTH_SHORT).show();
                                                 }
@@ -173,15 +193,18 @@ public class CarritoActivity extends AppCompatActivity {
                                             @Override
                                             public void onFailure(Call<Compra> call, Throwable t) {
                                                 // Manejar errores en la llamada de compra
+                                                progressDialog.dismiss(); // Ocultar el diálogo de carga
                                                 Toast.makeText(CarritoActivity.this, "Error al realizar la compra", Toast.LENGTH_SHORT).show();
                                             }
                                         });
                                     } else {
                                         // Manejar errores cuando la cantidad deseada supera el stock
+                                        progressDialog.dismiss(); // Ocultar el diálogo de carga
                                         Toast.makeText(CarritoActivity.this, "La cantidad deseada para '" + producto.getNombre() + "' supera el stock actual (" + stockDisponible + ")", Toast.LENGTH_SHORT).show();
                                     }
                                 } else {
                                     // Manejar errores al obtener el stock del producto
+                                    progressDialog.dismiss(); // Ocultar el diálogo de carga
                                     Toast.makeText(CarritoActivity.this, "Error al obtener el stock del producto", Toast.LENGTH_SHORT).show();
                                 }
                             }
@@ -189,15 +212,16 @@ public class CarritoActivity extends AppCompatActivity {
                             @Override
                             public void onFailure(Call<Producto> call, Throwable t) {
                                 // Manejar errores en la llamada para obtener el stock del producto
+                                progressDialog.dismiss(); // Ocultar el diálogo de carga
                                 Toast.makeText(CarritoActivity.this, "Error al obtener el stock del producto", Toast.LENGTH_SHORT).show();
                             }
                         });
                     }
                 } else {
                     // Manejar errores cuando el carrito está vacío
+                    progressDialog.dismiss(); // Ocultar el diálogo de carga
                     Toast.makeText(CarritoActivity.this, "El carrito está vacío", Toast.LENGTH_SHORT).show();
                 }
             }
         });
-    }
-}
+    }}

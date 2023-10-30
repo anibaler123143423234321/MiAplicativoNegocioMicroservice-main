@@ -294,8 +294,7 @@ public class ComprarActivity extends AppCompatActivity implements CompraAdapter.
                     Log.e("ComprarActivity", "Error al obtener el stock del producto", t);
                 }
             });
-            }
-                                          }, 2500); // Espera de 3 segundos (3000 milisegundos)
+            }}, 2500); // Espera de 3 segundos (3000 milisegundos)
             } else {
                 mostrarAlertaError("Ingresa la cantidad deseada");
             }
