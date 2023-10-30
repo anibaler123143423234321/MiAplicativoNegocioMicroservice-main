@@ -1,7 +1,9 @@
 package com.dagnerchuman.miaplicativonegociomicroservice.activity;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -67,6 +69,7 @@ public class ComprarActivity extends AppCompatActivity implements CompraAdapter.
     private boolean compraConfirmada = false; // Declaración de compraConfirmada como variable booleana
 
     private boolean isCompraConfirmada = false;
+    private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -160,6 +163,16 @@ public class ComprarActivity extends AppCompatActivity implements CompraAdapter.
 
         if (!cantidadDeseadaStr.isEmpty()) {
             cantidad = Integer.parseInt(cantidadDeseadaStr);
+            progressDialog = new ProgressDialog(ComprarActivity.this);
+            progressDialog.setMessage("Esperando...");
+            progressDialog.setCancelable(false); // Evita que el usuario pueda cancelar el diálogo
+            progressDialog.show();
+
+            // Agrega una espera de 3 segundos antes de continuar con la compra
+            new Handler().postDelayed(new Runnable() {
+                                          @Override
+                                          public void run() {
+                                              progressDialog.dismiss();
 
             // Consulta el stock actual del producto
             Call<Producto> stockCall = apiServiceProductos.getProductoById(productoId);
@@ -270,7 +283,7 @@ public class ComprarActivity extends AppCompatActivity implements CompraAdapter.
                                 producto.desbloquearCompra(); // Asegúrate de desbloquear el producto, incluso si ocurre una excepción
                             }
                         } else {
-                            Toast.makeText(ComprarActivity.this, "El producto está siendo comprado por otro usuario, por favor, inténtalo más tarde.",  Toast.LENGTH_SHORT).show();
+                            Toast.makeText(ComprarActivity.this, "El producto está siendo comprado por otro usuario, por favor, inténtalo más tarde.", Toast.LENGTH_SHORT).show();
                         }
                     }
                 }
@@ -281,10 +294,12 @@ public class ComprarActivity extends AppCompatActivity implements CompraAdapter.
                     Log.e("ComprarActivity", "Error al obtener el stock del producto", t);
                 }
             });
-        } else {
-            mostrarAlertaError("Ingresa la cantidad deseada");
+            }
+                                          }, 2500); // Espera de 3 segundos (3000 milisegundos)
+            } else {
+                mostrarAlertaError("Ingresa la cantidad deseada");
+            }
         }
-    }
 
     // Función para mostrar una alerta de compra exitosa
     private void mostrarAlertaCompraExitosa() {
