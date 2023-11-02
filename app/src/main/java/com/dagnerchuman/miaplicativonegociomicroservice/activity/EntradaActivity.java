@@ -302,6 +302,8 @@ public class EntradaActivity extends AppCompatActivity implements ProductoAdapte
             public void onResponse(Call<List<Producto>> call, Response<List<Producto>> response) {
                 if (response.isSuccessful()) {
                     List<Producto> productos = response.body();
+                    productosList.clear();
+
                     productList.addAll(productos);
                     adapter.notifyDataSetChanged();
                     int maxProductos = Math.min(productos.size(), 10);
