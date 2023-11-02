@@ -38,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
                 Intent mainIntent = new Intent(MainActivity.this, EntradaActivity.class);
                 mainIntent.putExtra("userEmail", getIntent().getStringExtra("userEmail"));
                 mainIntent.putExtra("userName", getIntent().getStringExtra("userName"));
+                mainIntent.putExtra("dni", getIntent().getStringExtra("dni"));
                 mainIntent.putExtra("userApellido", getIntent().getStringExtra("userApellido"));
                 mainIntent.putExtra("userTelefono", getIntent().getStringExtra("userTelefono"));
                 mainIntent.putExtra("userFechaCreacion", getIntent().getStringExtra("userFechaCreacion"));
@@ -53,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences sharedPreferences = getSharedPreferences("UserDataUser", MODE_PRIVATE);
         String userEmail = sharedPreferences.getString("userEmail", "");
         String userName = sharedPreferences.getString("userName", "");
+        String dni = sharedPreferences.getString("dni", "");
         String userApellido = sharedPreferences.getString("userApellido", "");
         String userTelefono = sharedPreferences.getString("userTelefono", "");
         Long userId = sharedPreferences.getLong("userId", -1);
@@ -61,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
         // Muestra la información en los TextViews
         TextView textViewEmail = findViewById(R.id.textViewEmail);
         TextView textViewNombre = findViewById(R.id.textViewNombre);
+        TextView textdni = findViewById(R.id.textdni);
         TextView textViewApellido = findViewById(R.id.textViewApellido);
         TextView textViewTelefono = findViewById(R.id.textViewTelefono);
         TextView textViewUserId = findViewById(R.id.textViewUserId);
@@ -69,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
         // Muestra la información en los TextViews
         textViewEmail.setText("Email del usuario: " + userEmail);
         textViewNombre.setText("Nombre del usuario: " + userName);
+        textdni.setText("Dni del usuario: " + dni);
         textViewApellido.setText("Apellido del usuario: " + userApellido);
         textViewTelefono.setText("Teléfono del usuario: " + userTelefono);
         textViewUserId.setText("ID del usuario: " + userId);
@@ -109,6 +113,11 @@ public class MainActivity extends AppCompatActivity {
             textViewNegocioId.setText("ID del negocio: " + userNegocioId);
         } else {
             textViewNegocioId.setText("ID de negocio no disponible");
+        }
+        if (userNegocioId != -1) {
+            textdni.setText("dni del user: " + dni);
+        } else {
+            textdni.setText("dni de user no disponible");
         }
     }
 }

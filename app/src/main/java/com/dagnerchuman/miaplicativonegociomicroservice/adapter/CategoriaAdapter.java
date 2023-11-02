@@ -40,7 +40,6 @@ public class CategoriaAdapter extends RecyclerView.Adapter<CategoriaAdapter.Prod
     public CategoriaAdapter(Context context, List<Producto> productList) {
         this.context = context;
         this.productList = productList;
-        this.entradaActivity = entradaActivity;
         this.carrito = new ArrayList<>();
         this.productosEnCarrito = new ArrayList<>(); // Inicializa la lista de productos en el carrito
 

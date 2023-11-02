@@ -176,6 +176,7 @@ public class LoginActivity extends AppCompatActivity {
         Intent mainIntent = new Intent(LoginActivity.this, MainActivity.class);
         mainIntent.putExtra("userEmail", user.getEmail());
         mainIntent.putExtra("userName", user.getNombre());
+        mainIntent.putExtra("dni", user.getDni());
         mainIntent.putExtra("userApellido", user.getApellido());
         mainIntent.putExtra("userTelefono", user.getTelefono());
         mainIntent.putExtra("userId", user.getId());
@@ -193,6 +194,7 @@ public class LoginActivity extends AppCompatActivity {
         editor.putString("userToken", user.getToken());
         editor.putString("userEmail", user.getEmail());
         editor.putString("userName", user.getNombre());
+        editor.putString("dni", user.getDni());
         editor.putString("userApellido", user.getApellido());
         editor.putString("userTelefono", user.getTelefono());
         editor.putLong("userId", user.getId());

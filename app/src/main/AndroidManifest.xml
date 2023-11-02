@@ -5,7 +5,7 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
-        android:icon="@drawable/logodagner"
+        android:icon="@drawable/altoque"
         android:networkSecurityConfig="@xml/network_security_config"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -53,6 +53,11 @@
 
         <activity
             android:name=".activity.CarritoActivity"
+            android:label="Carrito de Compras">
+        </activity>
+
+        <activity
+            android:name=".activity.CarritoActivityEntrada"
             android:label="Carrito de Compras">
         </activity>
 

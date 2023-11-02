@@ -23,6 +23,7 @@ import com.bumptech.glide.request.RequestOptions;
 import com.dagnerchuman.miaplicativonegociomicroservice.R;
 import com.dagnerchuman.miaplicativonegociomicroservice.activity.ComprarActivity;
 import com.dagnerchuman.miaplicativonegociomicroservice.activity.EntradaActivity;
+import com.dagnerchuman.miaplicativonegociomicroservice.entity.CarritoItem;
 import com.dagnerchuman.miaplicativonegociomicroservice.entity.Producto;
 import cn.pedant.SweetAlert.SweetAlertDialog;
 
@@ -34,7 +35,7 @@ public class ProductoAdapter extends RecyclerView.Adapter<ProductoAdapter.Produc
 
     private List<Producto> productList;
     private List<Producto> filteredList;
-    private List<Producto> carrito;  // Lista de productos en el carrito
+    private List<CarritoItem> carrito;  // Agrega esta lista para llevar un registro del carrito.
     private EntradaActivity entradaActivity; // Añade esta variable
 
     private OnProductSelectedListener productSelectedListener;
@@ -54,10 +55,6 @@ public class ProductoAdapter extends RecyclerView.Adapter<ProductoAdapter.Produc
         this.productSelectedListener = listener;
     }
 
-    // Add this method to get the carrito list
-    public List<Producto> getCarrito() {
-        return carrito;
-    }
 
     @NonNull
     @Override
@@ -93,6 +90,40 @@ public class ProductoAdapter extends RecyclerView.Adapter<ProductoAdapter.Produc
             }
         });
 
+        // Agregar el log después de que el producto se agregue al carrito
+        holder.btnAnadirCarritoE.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (producto.getStock() > 0) {
+                    // Verifica si el stock del producto es mayor que 0
+                    // Si el stock es 0, no se permite añadirlo al carrito
+                    // Cambia el estado de selección del producto
+                    producto.setSelected(!producto.isSelected());
+
+                    // Agregar un log para verificar si el producto se agrega al carrito
+                    Log.d("ProductoAgregadoAlCarrito", "ID: " + producto.getId() + ", Nombre: " + producto.getNombre());
+
+                    // Notifica al adaptador que los datos han cambiado
+                    notifyDataSetChanged();
+
+                    // Muestra un mensaje al usuario
+                    Toast.makeText(context, "Producto añadido al carrito", Toast.LENGTH_SHORT).show();
+
+                    // Llama al listener para informar que un producto ha sido seleccionado
+                    if (productSelectedListener != null) {
+                        productSelectedListener.onProductSelected(producto);
+                    }
+                } else {
+                    // Muestra una SweetAlert de advertencia si el producto está agotado
+                    new SweetAlertDialog(context, SweetAlertDialog.WARNING_TYPE)
+                            .setTitleText("Producto agotado")
+                            .setContentText("Este producto está fuera de stock.")
+                            .show();
+                }
+            }
+        });
+
+
     }
 
     @Override
@@ -127,7 +158,8 @@ public class ProductoAdapter extends RecyclerView.Adapter<ProductoAdapter.Produc
     public class ProductoViewHolder extends RecyclerView.ViewHolder {
         ImageView imgProducto;
         TextView txtNombre, txtCategoria, txtPrecio, txtStock;
-        Button btnComprar, btnAddToCart;
+        Button btnComprar;
+        Button btnAnadirCarritoE; // Nombre actualizado del botón
 
 
         public ProductoViewHolder(@NonNull View itemView) {
@@ -138,7 +170,7 @@ public class ProductoAdapter extends RecyclerView.Adapter<ProductoAdapter.Produc
             txtPrecio = itemView.findViewById(R.id.txtPrecio);
             txtStock = itemView.findViewById(R.id.txtStock);
             btnComprar = itemView.findViewById(R.id.btnComprar);
-           // btnAddToCart = itemView.findViewById(R.id.btnAddToCart);
+            btnAnadirCarritoE = itemView.findViewById(R.id.btnAnadirCarritoE); // Nombre actualizado del botón
         }
     }
 
@@ -176,6 +208,28 @@ public class ProductoAdapter extends RecyclerView.Adapter<ProductoAdapter.Produc
 
     public interface OnProductSelectedListener {
         void onProductSelected(Producto producto);
+    }
+
+    private void agregarAlCarrito(int productoId, String nombre, int cantidad, double precio) {
+        // Verificar si el producto ya está en el carrito.
+        for (CarritoItem item : carrito) {
+            if (item.getProductoId() == productoId) {
+                // El producto ya está en el carrito, aumenta la cantidad.
+                item.setCantidad(item.getCantidad() + 1);
+                notifyDataSetChanged();  // Notificar cambios en el adaptador.
+                return;
+            }
+        }
+
+        // Si el producto no está en el carrito, agrégalo como nuevo.
+        CarritoItem carritoItem = new CarritoItem(productoId, nombre, cantidad, precio);
+        carrito.add(carritoItem);
+        notifyDataSetChanged();  // Notificar cambios en el adaptador.
+    }
+
+
+    public List<CarritoItem> getCarrito() {
+        return carrito;
     }
 
 }

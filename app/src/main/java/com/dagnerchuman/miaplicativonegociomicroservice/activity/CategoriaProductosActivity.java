@@ -8,10 +8,12 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageButton;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -19,23 +21,20 @@ import com.dagnerchuman.miaplicativonegociomicroservice.R;
 import com.dagnerchuman.miaplicativonegociomicroservice.adapter.CategoriaAdapter;
 import com.dagnerchuman.miaplicativonegociomicroservice.api.ApiServiceProductos;
 import com.dagnerchuman.miaplicativonegociomicroservice.api.ConfigApi;
-import com.dagnerchuman.miaplicativonegociomicroservice.entity.CarritoItem;
 import com.dagnerchuman.miaplicativonegociomicroservice.entity.Producto;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-
-
 public class CategoriaProductosActivity extends AppCompatActivity {
-    private List<Producto> productList = new ArrayList<>();
+    private List<Producto> productList = new ArrayList();
     private RecyclerView recyclerView;
     private CategoriaAdapter adapter;
     private ImageButton btnBackToLogin, btnCarrito;
+    private ConstraintLayout constraintLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,69 +43,104 @@ public class CategoriaProductosActivity extends AppCompatActivity {
 
         recyclerView = findViewById(R.id.recyclerViewProductos);
         btnCarrito = findViewById(R.id.btnCarrito);
-
+        constraintLayout = findViewById(R.id.constraintLayout);
         btnBackToLogin = findViewById(R.id.btnBackToLogin);
 
+        setupRecyclerView();
+        setupBackToLoginButton();
+        setupCarritoButton();
+        obtainAndFilterProductos();
+    }
+
+    private void setupRecyclerView() {
         adapter = new CategoriaAdapter(this, productList);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
+    }
 
-        // Configuración del botón de retroceso
+    private void setupBackToLoginButton() {
         btnBackToLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent loginIntent = new Intent(CategoriaProductosActivity.this, EntradaActivity.class);
-                startActivity(loginIntent);
-                finish();
+                navigateToLoginActivity();
+            }
+        });
+    }
+
+    private void setupCarritoButton() {
+        btnCarrito.setOnTouchListener(new View.OnTouchListener() {
+            private float dX, dY;
+            private float startX, startY;
+            private boolean isMoving = false;
+
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getActionMasked()) {
+                    case MotionEvent.ACTION_DOWN:
+                        dX = v.getX() - event.getRawX();
+                        dY = v.getY() - event.getRawY();
+                        startX = event.getRawX();
+                        startY = event.getRawY();
+                        isMoving = false;
+                        break;
+
+                    case MotionEvent.ACTION_MOVE:
+                        float newX = event.getRawX() + dX;
+                        float newY = event.getRawY() + dY;
+
+                        newX = Math.max(0, Math.min(newX, constraintLayout.getWidth() - v.getWidth()));
+                        newY = Math.max(0, Math.min(newY, constraintLayout.getHeight() - v.getHeight()));
+
+                        v.setX(newX);
+                        v.setY(newY);
+
+                        if (Math.abs(event.getRawX() - startX) > 1200 || Math.abs(event.getRawY() - startY) > 1200) {
+                            isMoving = true;
+                        }
+                        break;
+
+                    case MotionEvent.ACTION_UP:
+                        if (!isMoving) {
+                            navigateToCarritoActivity();
+                        }
+                        break;
+                }
+                return true;
             }
         });
 
-
-        // Configuración del botón del carrito
         btnCarrito.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // Crea un ArrayList para rastrear los productos seleccionados por el usuario
-                ArrayList<Producto> productosSeleccionados = new ArrayList<>();
-
-                // Itera a través de productList para encontrar los productos seleccionados
-                for (Producto producto : productList) {
-                    if (producto.isSelected()) {
-                        productosSeleccionados.add(producto);
-                    }
-                }
-
-                // Abre la actividad del carrito solo con los productos seleccionados
-                Intent carritoIntent = new Intent(CategoriaProductosActivity.this, CarritoActivity.class);
-                carritoIntent.putExtra("productosEnCarrito", productosSeleccionados);
-                startActivity(carritoIntent);
+                navigateToCarritoActivity();
             }
         });
-
-
-// Obtén las preferencias compartidas
-        SharedPreferences sharedPreferences = getSharedPreferences("CategoriaPrefs", Context.MODE_PRIVATE);
-
-// Recupera el valor almacenado en las preferencias compartidas
-        long categoriaId = sharedPreferences.getLong("categoriaId", -1); // -1 es el valor predeterminado si no se encuentra
-
-// Registra el ID de la categoría recibida en el log
-        Log.d("Categoría recibida", "ID: " + categoriaId);
-
-// Ahora puedes usar el valor de 'categoriaId' en tu actividad para cargar productos de la categoría seleccionada.
-
-
-        // Registra el ID de la categoría seleccionada en el log
-        Log.d("Categoría recibida", "ID: " + categoriaId);
-
-        // Obtén todos los productos y filtra los que pertenecen a la categoría seleccionada
-        obtenerProductosYFiltrarPorCategoria(categoriaId);
     }
 
-    private void obtenerProductosYFiltrarPorCategoria(final long categoriaId) {
-        ApiServiceProductos apiServiceProductos = ConfigApi.getInstanceProducto(this);
+    private void navigateToLoginActivity() {
+        Intent loginIntent = new Intent(CategoriaProductosActivity.this, EntradaActivity.class);
+        startActivity(loginIntent);
+        finish();
+    }
 
-        // Realiza una llamada a la API para obtener productos por categoría
+    private void navigateToCarritoActivity() {
+        ArrayList<Producto> productosSeleccionados = new ArrayList<>();
+        for (Producto producto : productList) {
+            if (producto.isSelected()) {
+                productosSeleccionados.add(producto);
+            }
+        }
+
+        Intent carritoIntent = new Intent(CategoriaProductosActivity.this, CarritoActivity.class);
+        carritoIntent.putExtra("productosEnCarrito", productosSeleccionados);
+        startActivity(carritoIntent);
+    }
+
+    private void obtainAndFilterProductos() {
+        SharedPreferences sharedPreferences = getSharedPreferences("CategoriaPrefs", Context.MODE_PRIVATE);
+        long categoriaId = sharedPreferences.getLong("categoriaId", -1);
+
+        ApiServiceProductos apiServiceProductos = ConfigApi.getInstanceProducto(this);
         Call<List<Producto>> call = apiServiceProductos.getProductosPorCategoria(categoriaId);
 
         call.enqueue(new Callback<List<Producto>>() {
@@ -114,18 +148,6 @@ public class CategoriaProductosActivity extends AppCompatActivity {
             public void onResponse(Call<List<Producto>> call, Response<List<Producto>> response) {
                 if (response.isSuccessful()) {
                     List<Producto> productos = response.body();
-                    Log.d("Productos cargados", "Cantidad: " + productos.size());
-
-                    // Registra los productos filtrados en el log
-                    for (Producto producto : productos) {
-                        Log.d("Producto cargado", "Nombre: " + producto.getNombre());
-                        Log.d("Producto cargado", "Categoría ID: " + producto.getCategoriaId());
-                        Log.d("Producto cargado", "Imagen: " + producto.getPicture());
-                        Log.d("Producto cargado", "Precio: " + producto.getPrecio());
-                        Log.d("Producto cargado", "Negocio ID: " + producto.getNegocioId());
-                        Log.d("Producto cargado", "Stock: " + producto.getStock());
-                    }
-
                     productList.addAll(productos);
                     adapter.notifyDataSetChanged();
                 } else {
@@ -147,21 +169,13 @@ public class CategoriaProductosActivity extends AppCompatActivity {
         return true;
     }
 
-
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-
         if (id == R.id.action_cart) {
-            // Abre la actividad del carrito cuando se hace clic en el ícono del carrito.
-            Intent intent = new Intent(this, CarritoActivity.class);
-            startActivity(intent);
+            navigateToCarritoActivity();
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
-
-
 }

@@ -32,11 +32,26 @@
         android:layout_marginTop="16dp" />
 
 
+    <!-- Texto de Información del Usuario -->
+    <TextView
+        android:id="@+id/textViewUserInfo"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Información del Usuario"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar"
+        android:layout_marginTop="16dp" />
+
+
     <TextView
         android:id="@+id/textViewEmail"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="88dp"
+        android:layout_marginTop="116dp"
         android:text="Email: "
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.474"
@@ -91,5 +106,15 @@
         app:layout_constraintTop_toBottomOf="@+id/textViewUserId"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
+        android:id="@+id/textdni"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Dni: "
+        app:layout_constraintTop_toBottomOf="@+id/textViewNegocioId"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
