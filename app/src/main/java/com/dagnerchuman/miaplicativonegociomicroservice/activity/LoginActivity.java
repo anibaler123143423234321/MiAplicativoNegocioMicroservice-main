@@ -139,8 +139,7 @@ public class LoginActivity extends AppCompatActivity {
 
             Log.d("LoginActivity", "Token recibido: " + user.getToken());
 
-            // Envía los datos del usuario a MainActivity
-            sendUserDataToMainActivity(user);
+
 
             // Muestra un mensaje y navega a la siguiente actividad
             showToastAndNavigate("Inicio de sesión exitoso", EntradaActivity.class);
@@ -171,19 +170,6 @@ public class LoginActivity extends AppCompatActivity {
         finish();
     }
 
-    private void sendUserDataToMainActivity(User user) {
-        // Crea un Intent para MainActivity
-        Intent mainIntent = new Intent(LoginActivity.this, MainActivity.class);
-        mainIntent.putExtra("userEmail", user.getEmail());
-        mainIntent.putExtra("userName", user.getNombre());
-        mainIntent.putExtra("dni", user.getDni());
-        mainIntent.putExtra("userApellido", user.getApellido());
-        mainIntent.putExtra("userTelefono", user.getTelefono());
-        mainIntent.putExtra("userId", user.getId());
-        mainIntent.putExtra("userNegocioId", user.getNegocioId());
-
-
-    }
 
 
     private void saveUserData(User user) {

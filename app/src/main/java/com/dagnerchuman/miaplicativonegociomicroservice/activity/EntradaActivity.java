@@ -12,6 +12,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import androidx.appcompat.widget.SearchView;
@@ -23,11 +24,17 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.res.ResourcesCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.dagnerchuman.miaplicativonegociomicroservice.R;
+import com.dagnerchuman.miaplicativonegociomicroservice.activity.Fragments.ComprasListFragment;
+import com.dagnerchuman.miaplicativonegociomicroservice.activity.Fragments.UsuarioFragment;
 import com.dagnerchuman.miaplicativonegociomicroservice.adapter.ProductoAdapter;
 import com.dagnerchuman.miaplicativonegociomicroservice.api.ApiServiceCategorias;
 import com.dagnerchuman.miaplicativonegociomicroservice.api.ApiServiceNegocio;
@@ -57,6 +64,11 @@ public class EntradaActivity extends AppCompatActivity implements ProductoAdapte
         }
     }
 
+    private BottomNavigationView bottomNavigationView;
+    private final Fragment usuarioFragment = new UsuarioFragment();
+    private final Fragment comprasListFragment = new ComprasListFragment();
+    private FrameLayout fragmentContainer;
+
     private ImageButton btnBackToLogin, btnCarrito;
     private RecyclerView recyclerView;
     private SearchView searchView;
@@ -73,8 +85,8 @@ public class EntradaActivity extends AppCompatActivity implements ProductoAdapte
     private LinearLayout categoryButtonContainer;
     private List<Long> categoriasSeleccionadas = new ArrayList<>();
     private SwipeRefreshLayout swipeRefreshLayout;
-    private BottomNavigationView bottomNavigationView;
 
+    private LottieAnimationView animation_view;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -84,7 +96,7 @@ public class EntradaActivity extends AppCompatActivity implements ProductoAdapte
         setupSearchView();
         setupRecyclerView();
         setupSwipeRefreshLayout();
-        setupBottomNavigationView();
+        //setupBottomNavigationView();
         setupCarritoButton();
         obtenerNombreNegocio();
         obtenerProductosDelNegocio();
@@ -92,17 +104,7 @@ public class EntradaActivity extends AppCompatActivity implements ProductoAdapte
 
         SharedPreferences sharedPreferences = getSharedPreferences("UserDataUser", MODE_PRIVATE);
         String userName = sharedPreferences.getString("userName", "");
-        Log.d("UserData", "User Name: " + userName);
-
-        // Encuentra el TextView
-        TextView welcomeText = findViewById(R.id.userText);
-
-// Configura el mensaje de bienvenida
-        if (!userName.isEmpty()) {
-            String welcomeMessage = "¡Hola, " + userName + "!";
-            welcomeText.setText(welcomeMessage);
-            welcomeText.setVisibility(View.VISIBLE); // Muestra el TextView
-        }
+        updateWelcomeMessage(userName);
 
     }
 
@@ -118,8 +120,73 @@ public class EntradaActivity extends AppCompatActivity implements ProductoAdapte
         categoryButtonContainer = findViewById(R.id.categoryButtonContainer);
         customTitle = getLayoutInflater().inflate(R.layout.custom_toolbar_title, null);
         toolbarTitle = customTitle.findViewById(R.id.toolbar_title);
+        animation_view = findViewById(R.id.animation_view);
+
+        bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
+            if (item.getItemId() == R.id.page_1) {
+                // Recarga la actividad actual
+                startActivity(getIntent());
+                return true;
+            } else if (item.getItemId() == R.id.page_2) {
+                loadFragment(usuarioFragment);
+                return true;
+            } else if (item.getItemId() == R.id.page_3) {
+                loadFragment(comprasListFragment);
+                return true;
+            }
+            return false;
+        });
 
 
+    }
+
+
+    private void loadFragment(Fragment fragment) {
+        TextView userText = findViewById(R.id.userText);  // Encuentra el TextView por su ID
+
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fragmentContainer);
+        if (currentFragment != null) {
+            transaction.remove(currentFragment);
+        }
+
+        if (fragment == usuarioFragment || fragment == comprasListFragment) {
+            // Ocultar elementos cuando se muestra la página 2 o 3
+            recyclerView.setVisibility(View.GONE);
+            searchView.setVisibility(View.GONE);
+            swipeRefreshLayout.setVisibility(View.GONE);
+            categoryButtonContainer.setVisibility(View.GONE);
+            btnCarrito.setVisibility(View.GONE);
+            animation_view.setVisibility(View.GONE);
+            userText.setVisibility(View.GONE);
+
+        } else {
+            // Restablecer la visibilidad de los elementos cuando se muestra page_1
+            recyclerView.setVisibility(View.VISIBLE);
+            searchView.setVisibility(View.VISIBLE);
+            swipeRefreshLayout.setVisibility(View.VISIBLE);
+            categoryButtonContainer.setVisibility(View.VISIBLE);
+            btnCarrito.setVisibility(View.VISIBLE);
+            animation_view.setVisibility(View.GONE);
+            userText.setVisibility(View.VISIBLE);
+
+
+        }
+
+        transaction.replace(R.id.fragmentContainer, fragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
+    }
+
+
+
+    private void updateWelcomeMessage(String userName) {
+        TextView welcomeText = findViewById(R.id.userText);
+        if (!userName.isEmpty()) {
+            String welcomeMessage = "¡Hola, " + userName + "!";
+            welcomeText.setText(welcomeMessage);
+            welcomeText.setVisibility(View.VISIBLE);
+        }
     }
 
     private void setupSearchView() {
@@ -153,23 +220,6 @@ public class EntradaActivity extends AppCompatActivity implements ProductoAdapte
     }
 
 
-    private void setupBottomNavigationView() {
-        bottomNavigationView.setSelectedItemId(R.id.page_1);
-        bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
-            int itemId = item.getItemId();
-            if (itemId == R.id.page_1) {
-                return true;
-            } else if (itemId == R.id.page_2) {
-                verMisDatos();
-                return true;
-            } else if (itemId == R.id.page_3) {
-                verCompras();
-                return true;
-            } else {
-                return false;
-            }
-        });
-    }
 
     private void setupCarritoButton() {
         btnCarrito.setOnTouchListener(new View.OnTouchListener() {
@@ -229,18 +279,6 @@ public class EntradaActivity extends AppCompatActivity implements ProductoAdapte
         startActivity(carritoIntent);
     }
 
-    private void verMisDatos() {
-        Intent mainIntent = new Intent(this, MainActivity.class);
-        startActivity(mainIntent);
-    }
-
-    private void verCompras() {
-        SharedPreferences sharedPreferences = getSharedPreferences("UserData", MODE_PRIVATE);
-        Long userId = sharedPreferences.getLong("userId", -1);
-        Intent mainIntentN = new Intent(this, ListadoDeComprasActivity.class);
-        mainIntentN.putExtra("userId", userId);
-        startActivity(mainIntentN);
-    }
 
     private void obtenerNombreNegocio() {
         // Configura el servicio API y obtiene el ID del negocio del SharedPreferences
