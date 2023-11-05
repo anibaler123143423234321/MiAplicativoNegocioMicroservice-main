@@ -13,7 +13,7 @@ public class User {
     private String fechaCreacion; // Cambiado a String
     private String token;
     private Long negocioId;
-
+    private String picture;
     private String dni;
 
     private String departamento;
@@ -23,6 +23,16 @@ public class User {
     private String tipoDoc;
 
     private String distrito;
+
+
+    public String getPicture() {
+        return picture;
+    }
+
+    public void setPicture(String picture) {
+        this.picture = picture;
+    }
+
 
     public String getDepartamento() {
         return departamento;

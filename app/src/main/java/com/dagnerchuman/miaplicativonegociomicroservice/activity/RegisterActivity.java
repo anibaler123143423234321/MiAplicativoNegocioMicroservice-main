@@ -3,13 +3,20 @@ package com.dagnerchuman.miaplicativonegociomicroservice.activity;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.provider.MediaStore;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -27,8 +34,12 @@ import com.dagnerchuman.miaplicativonegociomicroservice.entity.Negocio;
 import com.dagnerchuman.miaplicativonegociomicroservice.entity.User;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import cn.pedant.SweetAlert.SweetAlertDialog;
 
 import java.util.List;
+import java.util.UUID;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -67,8 +78,19 @@ public class RegisterActivity extends AppCompatActivity {
     private Long selectedNegocioId = null;
     private ImageButton btnBackToLogin;
     private Button buttonBuscarDNI; // Agrega este botón en tu XML y configúralo
+    private static final int GALLERY_REQUEST_CODE = 1;
 
     private static final int REQUEST_INTERNET_PERMISSION = 123;
+    private static final int PICK_IMAGE_REQUEST = 1;
+    private ImageView imageViewSelected;
+
+    // Declaración de variables globales
+    private FirebaseStorage storage;
+    private StorageReference storageReference;
+    private Uri selectedImageUri; // Variable para almacenar la URI de la imagen seleccionada
+    private boolean isRegistering = false;
+
+
     // Define una interfaz para la API de consulta de DNI
     public interface ApiServiceDni {
         @GET("dni/{dni}")
@@ -104,6 +126,22 @@ public class RegisterActivity extends AppCompatActivity {
         spinnerDepartamento = findViewById(R.id.spinnerDepartamento);
         spinnerProvincia = findViewById(R.id.spinnerProvincia);
         spinnerDistrito = findViewById(R.id.spinnerDistrito);
+        imageViewSelected = findViewById(R.id.imageViewSelected);
+
+        // Configura el evento click para el botón "Seleccionar Imagen"
+        Button buttonSelectImage = findViewById(R.id.buttonSelectImage);
+        buttonSelectImage.setOnClickListener(view -> {
+            // Verifica si tienes permiso de acceso a la galería
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_INTERNET_PERMISSION);
+            } else {
+                openImagePicker();
+            }
+        });
+
+        // Inicializa Firebase Storage en onCreate o donde sea apropiado
+        storage = FirebaseStorage.getInstance();
+        storageReference = storage.getReference();
 
         // Crea adaptadores personalizados para los Spinners
         ArrayAdapter<CharSequence> tipoDocumentoAdapter = ArrayAdapter.createFromResource(this, R.array.document_types, R.layout.custom_spinner_item);
@@ -128,23 +166,40 @@ public class RegisterActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.INTERNET}, REQUEST_INTERNET_PERMISSION);
         }
         // Configura el evento click para el botón "Registrarse"
+// Configura el evento click para el botón "Registrarse"
         buttonSignUp.setOnClickListener(view -> {
-            // Obtiene los valores de los campos de entrada
-            String nombre = editTextNombre.getText().toString();
-            String apellido = editTextApellido.getText().toString();
-            String telefono = editTextTelefono.getText().toString();
-            String email = editTextEmail.getText().toString();
-            String username = editTextUsername.getText().toString();
-            String password = editTextPassword.getText().toString();
-            String dni = editTextDNI.getText().toString();
-            String tipoDoc = spinnerTipoDocumento.getSelectedItem().toString();
-            String departamento = spinnerDepartamento.getSelectedItem().toString();
-            String provincia = spinnerProvincia.getSelectedItem().toString();
-            String distrito = spinnerDistrito.getSelectedItem().toString();
+            if (!isRegistering) {
+                // Mostrar el diálogo de espera
+                SweetAlertDialog progressDialog = new SweetAlertDialog(RegisterActivity.this, SweetAlertDialog.PROGRESS_TYPE);
+                progressDialog.getProgressHelper().setBarColor(Color.parseColor("#A5DC86"));
+                progressDialog.setTitleText("Registrando...");
+                progressDialog.setCancelable(false); // Evita que el usuario cierre el diálogo
+                progressDialog.show();
 
-            // Realiza la solicitud de registro
-            performSignUp(nombre, apellido, telefono, dni, email, username, password, tipoDoc, departamento, provincia, distrito);
+                // Obtiene los valores de los campos de entrada
+                String nombre = editTextNombre.getText().toString();
+                String apellido = editTextApellido.getText().toString();
+                String telefono = editTextTelefono.getText().toString();
+                String email = editTextEmail.getText().toString();
+                String username = editTextUsername.getText().toString();
+                String password = editTextPassword.getText().toString();
+                String dni = editTextDNI.getText().toString();
+                String tipoDoc = spinnerTipoDocumento.getSelectedItem().toString();
+                String departamento = spinnerDepartamento.getSelectedItem().toString();
+                String provincia = spinnerProvincia.getSelectedItem().toString();
+                String distrito = spinnerDistrito.getSelectedItem().toString();
+
+                // Obtén la imagen en forma de URL (usando el contenido de selectedImageUri)
+                String picture = (selectedImageUri != null) ? selectedImageUri.toString() : ""; // Reemplaza "" con el valor predeterminado adecuado
+
+                // Realiza la solicitud de registro
+                performSignUp(nombre, apellido, telefono, dni, email, username, password, picture, tipoDoc, departamento, provincia, distrito);
+
+                // Cierra el diálogo de espera después de un tiempo específico (por ejemplo, 2 segundos)
+                new Handler().postDelayed(() -> progressDialog.dismissWithAnimation(), 1500);
+            }
         });
+
 
         // Configura el evento click para el botón "Buscar DNI"
         buttonBuscarDNI = findViewById(R.id.buttonBuscarDNI); // Reemplaza con el ID correcto de tu botón
@@ -180,16 +235,23 @@ public class RegisterActivity extends AppCompatActivity {
                                 editTextApellido.setText(apellidosCompletos);
 
                                 // Deshabilita los campos de nombre y apellido
-                                editTextNombre.setEnabled(false);
-                                editTextApellido.setEnabled(false);
+
 
                             } else {
                                 // Manejar el caso en que la API no devuelva datos válidos
-                                Toast.makeText(RegisterActivity.this, "No se encontraron datos para el DNI proporcionado", Toast.LENGTH_SHORT).show();
+                                new SweetAlertDialog(RegisterActivity.this, SweetAlertDialog.ERROR_TYPE)
+                                        .setTitleText("Error")
+                                        .setContentText("No se encontraron datos para el DNI proporcionado. Completa los campos manualmente.")
+                                        .show();
+                                editTextNombre.setEnabled(true);
+                                editTextApellido.setEnabled(true);
                             }
                         } else {
                             // Manejar el caso en que la solicitud a la API no sea exitosa
-                            Toast.makeText(RegisterActivity.this, "Error al obtener datos del DNI", Toast.LENGTH_SHORT).show();
+                            new SweetAlertDialog(RegisterActivity.this, SweetAlertDialog.ERROR_TYPE)
+                                    .setTitleText("Error")
+                                    .setContentText("Error al obtener datos del DNI. Brinda un DNI activo.")
+                                    .show();
                             Log.d("MiApp", "URL de solicitud: " + call.request().url());
 
                         }
@@ -260,74 +322,115 @@ public class RegisterActivity extends AppCompatActivity {
 
 
     // Método para realizar la solicitud de registro
-    private void performSignUp(String nombre, String apellido, String telefono, String dni, String email, String username, String password, String tipoDoc, String departamento, String provincia, String distrito) {
+    private void performSignUp(String nombre, String apellido, String telefono, String dni, String email, String username, String password,String picture, String tipoDoc, String departamento, String provincia, String distrito) {
         // Verifica que se haya seleccionado un negocio
         if (selectedNegocioId == null) {
             Toast.makeText(this, "Selecciona un negocio válido", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Obtén la instancia de ApiService de ConfigApi
-        ApiService apiService = ConfigApi.getInstance(this);
+        // Verifica que se haya seleccionado una imagen
+        if (selectedImageUri == null) {
+            Toast.makeText(this, "Selecciona una imagen primero", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-        // Crea un objeto Usuario para la solicitud
-        User user = new User();
-        user.setNombre(nombre);
-        user.setApellido(apellido);
-        user.setTelefono(telefono);
-        user.setDni(dni);
-        user.setEmail(email);
-        user.setUsername(username);
-        user.setPassword(password);
-        user.setNegocioId(selectedNegocioId);
-        user.setTipoDoc(tipoDoc);
-        user.setDepartamento(departamento);
-        user.setProvincia(provincia);
-        user.setDistrito(distrito);
+        // Verifica si ya se está registrando
+        if (isRegistering) {
+            return;
+        }
 
-        // Usa el negocio seleccionado
+        // Marca que se está registrando
+        isRegistering = true;
 
-        // Realiza la solicitud de registro
-        Call<User> call = apiService.signUp(user);
+        // Genera un nombre único para la imagen en Firebase Storage
+        String imageName = UUID.randomUUID().toString();
 
-        Log.d("MiApp", "Antes de la solicitud de registro");
+        // Obtén una referencia al lugar donde se guardará la imagen en Firebase Storage
+        StorageReference imageRef = storageReference.child("images/" + imageName);
 
-        call.enqueue(new Callback<User>() {
-            @Override
-            public void onResponse(@NonNull Call<User> call, @NonNull Response<User> response) {
-                if (response.isSuccessful()) {
-                    // El registro fue exitoso
-                    Log.d("MiApp", "Registro exitoso");
-                    User user = response.body();
+        // Sube la imagen a Firebase Storage
+        imageRef.putFile(selectedImageUri)
+                .addOnSuccessListener(taskSnapshot -> {
+                    // La imagen se ha subido exitosamente, obtén la URL de descarga
+                    imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                        String imageUrl = uri.toString();
 
-                    if (user != null) {
-                        // Aquí puedes realizar las acciones necesarias después del registro exitoso
-                        Toast.makeText(RegisterActivity.this, "Registro exitoso", Toast.LENGTH_SHORT).show();
+                        // Aquí puedes guardar imageUrl en tu base de datos o hacer lo que necesites con la URL de la imagen.
+                        // Ahora puedes configurar la solicitud de registro con la URL de la imagen
+                        // Obtén la instancia de ApiService de ConfigApi
+                        ApiService apiService = ConfigApi.getInstance(this);
 
-                        // Redirige al usuario a la actividad de inicio de sesión
-                        Intent loginIntent = new Intent(RegisterActivity.this, LoginActivity.class);
-                        startActivity(loginIntent);
+                        // Crea un objeto Usuario para la solicitud
+                        User user = new User();
+                        user.setNombre(nombre);
+                        user.setApellido(apellido);
+                        user.setTelefono(telefono);
+                        user.setDni(dni);
+                        user.setEmail(email);
+                        user.setUsername(username);
+                        user.setPassword(password);
+                        user.setPicture(imageUrl); // Establece la URL de la imagen
+                        user.setNegocioId(selectedNegocioId);
+                        user.setTipoDoc(tipoDoc);
+                        user.setDepartamento(departamento);
+                        user.setProvincia(provincia);
+                        user.setDistrito(distrito);
 
-                        finish(); // Cierra esta actividad para que el usuario no pueda volver atrás
-                    } else {
-                        // Maneja el caso en que el usuario sea nulo
-                    }
-                } else {
-                    // El registro falló
-                    Log.d("MiApp", "Registro fallido");
-                    Toast.makeText(RegisterActivity.this, "Registro fallido", Toast.LENGTH_SHORT).show();
-                }
-            }
+                        // Realiza la solicitud de registro
+                        Call<User> call = apiService.signUp(user);
 
-            @Override
-            public void onFailure(@NonNull Call<User> call, @NonNull Throwable t) {
-                // Maneja el error de la solicitud de red aquí
-                Log.e("MiApp", "Error en la solicitud: " + t.getMessage());
-                Toast.makeText(RegisterActivity.this, "Error en la solicitud: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
+                        Log.d("MiApp", "Antes de la solicitud de registro");
 
-        Log.d("MiApp", "Después de la solicitud de registro");
+                        call.enqueue(new Callback<User>() {
+                            @Override
+                            public void onResponse(@NonNull Call<User> call, @NonNull Response<User> response) {
+                                isRegistering = false; // Restablece el estado
+                                if (response.isSuccessful()) {
+
+                                    // El registro fue exitoso
+                                    Log.d("MiApp", "Registro exitoso");
+                                    User user = response.body();
+
+                                    if (user != null) {
+                                        // Aquí puedes realizar las acciones necesarias después del registro exitoso
+                                        new SweetAlertDialog(RegisterActivity.this, SweetAlertDialog.SUCCESS_TYPE)
+                                                .setTitleText("Registro Exitoso")
+                                                .setContentText("¡Tu registro se ha completado exitosamente!")
+                                                .setConfirmClickListener(sDialog -> {
+                                                    // Redirige al usuario a la actividad de inicio de sesión
+                                                    Intent loginIntent = new Intent(RegisterActivity.this, LoginActivity.class);
+                                                    startActivity(loginIntent);
+                                                    finish(); // Cierra esta actividad para que el usuario no pueda volver atrás
+                                                    sDialog.dismissWithAnimation();
+                                                })
+                                                .show();
+                                    } else {
+                                        // Maneja el caso en que el usuario sea nulo
+                                    }
+                                } else {
+                                    // El registro falló
+                                    Log.d("MiApp", "Registro fallido");
+                                    Toast.makeText(RegisterActivity.this, "Registro fallido", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(@NonNull Call<User> call, @NonNull Throwable t) {
+                                isRegistering = false; // Restablece el estado
+                                // Maneja el error de la solicitud de red aquí
+                                Log.e("MiApp", "Error en la solicitud: " + t.getMessage());
+                                Toast.makeText(RegisterActivity.this, "Error en la solicitud: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                            }
+                        });
+
+                        Log.d("MiApp", "Después de la solicitud de registro");
+                    });
+                })
+                .addOnFailureListener(e -> {
+                    // Ocurrió un error al subir la imagen
+                    Toast.makeText(this, "Error al subir la imagen", Toast.LENGTH_SHORT).show();
+                });
     }
 
     // Método para obtener la lista de negocios y configurar el Spinner
@@ -360,4 +463,23 @@ public class RegisterActivity extends AppCompatActivity {
             }
         });
     }
+
+    // Implementación de openImagePicker
+    private void openImagePicker() {
+        Intent galleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(galleryIntent, GALLERY_REQUEST_CODE);
+    }
+
+    // En onActivityResult, maneja la selección de la imagen
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == GALLERY_REQUEST_CODE && resultCode == RESULT_OK) {
+            if (data != null) {
+                selectedImageUri = data.getData();
+                imageViewSelected.setImageURI(selectedImageUri); // Muestra la imagen seleccionada en tu ImageView
+            }
+        }
+    }
+
 }

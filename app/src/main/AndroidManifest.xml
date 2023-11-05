@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-feature android:name="android.hardware.camera" />
 
     <application
         android:icon="@drawable/altoque"
@@ -15,14 +17,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MiAplicativoNegocioMicroservice">
 
-        <!-- Actividad principal (MainActivity) -->
-        <activity
-            android:name=".activity.MainActivity"
-            android:parentActivityName=".activity.EntradaActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activity.EntradaActivity" />
-        </activity>
 
         <activity
             android:name=".activity.NegociosActivity">
@@ -46,10 +40,6 @@
             android:label="Categoría de Productos">
         </activity>
 
-        <activity
-            android:name=".activity.ListadoDeComprasActivity"
-            android:label="Listado de Compras">
-        </activity>
 
         <activity
             android:name=".activity.CarritoActivity"
