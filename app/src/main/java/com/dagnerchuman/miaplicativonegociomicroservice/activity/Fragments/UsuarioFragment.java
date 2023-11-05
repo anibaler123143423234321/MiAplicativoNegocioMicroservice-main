@@ -16,14 +16,18 @@ import androidx.fragment.app.Fragment;
 import androidx.appcompat.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
+import com.squareup.picasso.Picasso;
 
 import com.dagnerchuman.miaplicativonegociomicroservice.R;
 import com.dagnerchuman.miaplicativonegociomicroservice.activity.EntradaActivity;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class UsuarioFragment extends Fragment {
 
     private ImageButton btnMenu;
     private TextView textViewEmail, textViewNombre, textViewApellido, textViewTelefono, textViewUserId, textViewNegocioId, textdni;
+    private CircleImageView imageViewUserProfile;
 
     @Nullable
     @Override
@@ -58,11 +62,10 @@ public class UsuarioFragment extends Fragment {
                 // Iniciar MainActivity con startActivityForResult
                 requireActivity().startActivity(mainIntent);
                 requireActivity().onBackPressed();
-
             }
         });
 
-        // Inicializa los TextViews
+        // Inicializa los TextViews y el ImageView
         textViewEmail = view.findViewById(R.id.textViewEmail);
         textViewNombre = view.findViewById(R.id.textViewNombre);
         textdni = view.findViewById(R.id.textdni);
@@ -70,6 +73,7 @@ public class UsuarioFragment extends Fragment {
         textViewTelefono = view.findViewById(R.id.textViewTelefono);
         textViewUserId = view.findViewById(R.id.textViewUserId);
         textViewNegocioId = view.findViewById(R.id.textViewNegocioId);
+        imageViewUserProfile = view.findViewById(R.id.imageViewUserProfile);
 
         // Lee los datos del usuario desde SharedPreferences
         SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("UserDataUser", requireActivity().MODE_PRIVATE);
@@ -89,6 +93,16 @@ public class UsuarioFragment extends Fragment {
         textViewTelefono.setText("Teléfono del usuario: " + userTelefono);
         textViewUserId.setText("ID del usuario: " + userId);
         textViewNegocioId.setText("ID del negocio: " + userNegocioId);
+
+        // Cargar la imagen en el CircleImageView utilizando Picasso
+        String pictureUrl = sharedPreferences.getString("picture", "");
+        if (!pictureUrl.isEmpty()) {
+            Picasso.get().load(pictureUrl).into(imageViewUserProfile);
+        } else {
+            // Si la URL de la imagen está vacía, puedes mostrar una imagen de marcador o un mensaje de error.
+            imageViewUserProfile.setImageResource(R.drawable.image_not_found); // Reemplaza con tu imagen de marcador
+        }
+
 
         return view;
     }

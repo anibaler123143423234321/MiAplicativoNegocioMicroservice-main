@@ -180,12 +180,14 @@ public class LoginActivity extends AppCompatActivity {
         editor.putString("userToken", user.getToken());
         editor.putString("userEmail", user.getEmail());
         editor.putString("userName", user.getNombre());
+        editor.putString("picture", user.getPicture());
         editor.putString("dni", user.getDni());
         editor.putString("userApellido", user.getApellido());
         editor.putString("userTelefono", user.getTelefono());
         editor.putLong("userId", user.getId());
         editor.putLong("userNegocioId", user.getNegocioId());
         // Agrega más atributos según las propiedades de la clase User
+        Log.d("LoginActivity", "Picture URL a guardar: " + user.getPicture());
 
         editor.apply();
     }
