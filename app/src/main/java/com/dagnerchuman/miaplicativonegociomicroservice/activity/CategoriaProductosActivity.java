@@ -94,7 +94,7 @@ public class CategoriaProductosActivity extends AppCompatActivity {
                         v.setX(newX);
                         v.setY(newY);
 
-                        if (Math.abs(event.getRawX() - startX) > 1200 || Math.abs(event.getRawY() - startY) > 1200) {
+                        if (Math.abs(event.getRawX() - startX) > 120 || Math.abs(event.getRawY() - startY) > 120) {
                             isMoving = true;
                         }
                         break;

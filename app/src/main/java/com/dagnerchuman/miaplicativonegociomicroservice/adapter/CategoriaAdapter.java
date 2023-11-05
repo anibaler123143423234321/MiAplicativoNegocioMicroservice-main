@@ -90,9 +90,22 @@ public class CategoriaAdapter extends RecyclerView.Adapter<CategoriaAdapter.Prod
 
                     // Notifica al adaptador que los datos han cambiado
                     notifyDataSetChanged();
+                    // Declaración de la variable sweetAlertDialog
+                    SweetAlertDialog sweetAlertDialog = new SweetAlertDialog(context, SweetAlertDialog.SUCCESS_TYPE)
+                            .setTitleText("Producto añadido al carrito")
+                            .setContentText("El producto se ha añadido con éxito")
+                            .setConfirmText("OK");
 
-                    // Muestra un mensaje al usuario
-                    Toast.makeText(context, "Producto añadido al carrito", Toast.LENGTH_SHORT).show();
+                    sweetAlertDialog.show();
+
+                    // Cierra el SweetAlert después de un tiempo específico
+                    new android.os.Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            sweetAlertDialog.dismissWithAnimation();
+                        }
+                    }, 1800); // Cambia 2000 a la duración deseada en milisegundos
+
                 } else {
                     // Muestra una SweetAlert de advertencia si el producto está agotado
                     new SweetAlertDialog(context, SweetAlertDialog.WARNING_TYPE)

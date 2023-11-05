@@ -90,39 +90,42 @@ public class ProductoAdapter extends RecyclerView.Adapter<ProductoAdapter.Produc
             }
         });
 
-        // Agregar el log después de que el producto se agregue al carrito
         holder.btnAnadirCarritoE.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (producto.getStock() > 0) {
-                    // Verifica si el stock del producto es mayor que 0
-                    // Si el stock es 0, no se permite añadirlo al carrito
-                    // Cambia el estado de selección del producto
                     producto.setSelected(!producto.isSelected());
-
-                    // Agregar un log para verificar si el producto se agrega al carrito
                     Log.d("ProductoAgregadoAlCarrito", "ID: " + producto.getId() + ", Nombre: " + producto.getNombre());
-
-                    // Notifica al adaptador que los datos han cambiado
                     notifyDataSetChanged();
 
-                    // Muestra un mensaje al usuario
-                    Toast.makeText(context, "Producto añadido al carrito", Toast.LENGTH_SHORT).show();
+                    // Declaración de la variable sweetAlertDialog
+                    SweetAlertDialog sweetAlertDialog = new SweetAlertDialog(context, SweetAlertDialog.SUCCESS_TYPE)
+                            .setTitleText("Producto añadido al carrito")
+                            .setContentText("El producto se ha añadido con éxito")
+                            .setConfirmText("OK");
 
-                    // Llama al listener para informar que un producto ha sido seleccionado
+                    sweetAlertDialog.show();
+
+                    // Cierra el SweetAlert después de un tiempo específico
+                    new android.os.Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            sweetAlertDialog.dismissWithAnimation();
+                        }
+                    }, 1800); // Cambia 2000 a la duración deseada en milisegundos
+
                     if (productSelectedListener != null) {
                         productSelectedListener.onProductSelected(producto);
                     }
                 } else {
-                    // Muestra una SweetAlert de advertencia si el producto está agotado
                     new SweetAlertDialog(context, SweetAlertDialog.WARNING_TYPE)
                             .setTitleText("Producto agotado")
-                            .setContentText("Este producto está fuera de stock.")
+                            .setContentText("Este producto está fuera de stock")
+                            .setConfirmText("OK")
                             .show();
                 }
             }
         });
-
 
     }
 
