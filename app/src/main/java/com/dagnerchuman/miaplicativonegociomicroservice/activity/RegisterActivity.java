@@ -99,6 +99,7 @@ public class RegisterActivity extends AppCompatActivity {
                 @Query("token") String token
         );
     }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -208,7 +209,10 @@ public class RegisterActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 String dni = editTextDNI.getText().toString();
-                String token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6ImRhZ25lcl9zbW9vdGhAb3V0bG9vay5jb20ifQ.bbHxz4-4Qh1vJAKDbHqNUZWtHIHMEV46E2tDRH4CdlA";
+                String token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6Imtpa2UuamVwZkBnbWFpbC5jb20ifQ.NRMVtJiFKRXYBXuJPLwNsKeRK5hPWIALRxbqNSWloXU";
+
+                // Registra información de depuración para ver los datos antes de la solicitud
+                Log.d("MiApp", "Solicitando datos para el DNI: " + dni);
 
                 // Crear una instancia de Retrofit para la API de consulta de DNI
                 Retrofit retrofit = new Retrofit.Builder()
@@ -236,6 +240,7 @@ public class RegisterActivity extends AppCompatActivity {
 
                                 // Deshabilita los campos de nombre y apellido
 
+                                Log.d("MiApp", "Datos del DNI exitosos. Nombre: " + nombreCompleto + " Apellidos: " + apellidosCompletos);
 
                             } else {
                                 // Manejar el caso en que la API no devuelva datos válidos
@@ -245,6 +250,10 @@ public class RegisterActivity extends AppCompatActivity {
                                         .show();
                                 editTextNombre.setEnabled(true);
                                 editTextApellido.setEnabled(true);
+
+                                Log.d("MiApp", "Datos del DNI no válidos.");
+
+
                             }
                         } else {
                             // Manejar el caso en que la solicitud a la API no sea exitosa
@@ -253,7 +262,6 @@ public class RegisterActivity extends AppCompatActivity {
                                     .setContentText("Error al obtener datos del DNI. Brinda un DNI activo.")
                                     .show();
                             Log.d("MiApp", "URL de solicitud: " + call.request().url());
-
                         }
                     }
 
@@ -262,6 +270,7 @@ public class RegisterActivity extends AppCompatActivity {
                         // Manejar el error de la solicitud de red aquí
                         Log.e("MiApp", "Error en la solicitud: " + t.getMessage());
                         Toast.makeText(RegisterActivity.this, "Error en la solicitud: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+
                     }
                 });
             }

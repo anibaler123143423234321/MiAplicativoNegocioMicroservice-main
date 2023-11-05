@@ -3,6 +3,7 @@ package com.dagnerchuman.miaplicativonegociomicroservice.activity.Fragments;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,6 +19,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.appcompat.widget.SearchView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.CenterCrop;
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.dagnerchuman.miaplicativonegociomicroservice.R;
 import com.dagnerchuman.miaplicativonegociomicroservice.activity.CarritoActivityEntrada;
 import com.dagnerchuman.miaplicativonegociomicroservice.activity.CategoriaProductosActivity;
@@ -203,11 +208,34 @@ public class EntradaFragment extends Fragment implements ProductoAdapter.OnProdu
             public void onResponse(Call<List<Categoria>> call, Response<List<Categoria>> response) {
                 if (response.isSuccessful()) {
                     List<Categoria> categorias = response.body();
+                    ViewGroup categoryButtonContainer = requireActivity().findViewById(R.id.categoryButtonContainer);
+
                     for (Categoria categoria : categorias) {
                         if (categoria.getNegocioId().equals(userNegocioId)) {
                             Button categoryButton = new Button(requireActivity());
+
+                            // Agregar márgenes a los botones
+                            int marginInPixels = getResources().getDimensionPixelSize(R.dimen.category_button_margin);
+                            ViewGroup.MarginLayoutParams params = new ViewGroup.MarginLayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                            params.setMargins(marginInPixels, marginInPixels, marginInPixels, marginInPixels);
+                            categoryButton.setLayoutParams(params);
+
                             categoryButton.setText(categoria.getNombre());
-                            categoryButton.setBackgroundResource(R.drawable.categoria_button_background);
+
+                            // Cargar la imagen de fondo
+                            Glide.with(requireContext())
+                                    .load(categoria.getPicture())
+                                    .transform(new CenterCrop(), new ResizeTransformation(100, 100))
+                                    .into(new SimpleTarget<Drawable>() {
+                                        @Override
+                                        public void onResourceReady(Drawable resource, Transition<? super Drawable> transition) {
+                                            // Establecer la imagen de fondo con una opacidad reducida
+                                            resource.setAlpha(128); // Ajusta el nivel de opacidad (0-255) según tus preferencias
+                                            categoryButton.setBackground(resource);
+                                        }
+                                    });
+
+
                             categoryButton.setOnClickListener(view -> {
                                 long categoriaId = categoria.getId();
                                 SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("CategoriaPrefs", Context.MODE_PRIVATE);
@@ -217,7 +245,8 @@ public class EntradaFragment extends Fragment implements ProductoAdapter.OnProdu
                                 Intent categoriaIntent = new Intent(requireActivity(), CategoriaProductosActivity.class);
                                 startActivity(categoriaIntent);
                             });
-                            ((ViewGroup) requireActivity().findViewById(R.id.categoryButtonContainer)).addView(categoryButton);
+
+                            categoryButtonContainer.addView(categoryButton);
                         }
                     }
                 } else {

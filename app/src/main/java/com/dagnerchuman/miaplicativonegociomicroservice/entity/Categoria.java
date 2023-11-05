@@ -6,6 +6,16 @@ public class Categoria {
     private Long negocioId;
     private String fechaCreacion; // Puedes usar un tipo de fecha adecuado en Android
 
+    private String picture;
+
+    public String getPicture() {
+        return picture;
+    }
+
+    public void setPicture(String picture) {
+        this.picture = picture;
+    }
+
     public Long getId() {
         return id;
     }
