@@ -2,6 +2,7 @@ package com.dagnerchuman.miaplicativonegociomicroservice.activity;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
@@ -101,6 +102,15 @@ public class EntradaActivity extends AppCompatActivity   {
         });
 
 
+        // Configuración del botón de retroceso
+        btnBackToLogin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent loginIntent = new Intent(EntradaActivity.this, LoginActivity.class);
+                startActivity(loginIntent);
+                finish();
+            }
+        });
     }
 
 
