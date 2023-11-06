@@ -4,6 +4,5 @@
     <color name="white">#FFFFFFFF</color>
     <color name="colorPrimary">#FF5722</color>
     <color name="colorSpinnerText">#333333</color> <!-- Cambia el valor de color según tu preferencia -->
-    <color name="button_text_color">#FFFFFF</color> <!-- Cambia el color según tus preferencias -->
 
 </resources>

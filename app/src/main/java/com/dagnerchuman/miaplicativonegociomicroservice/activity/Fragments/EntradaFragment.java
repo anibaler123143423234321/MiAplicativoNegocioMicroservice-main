@@ -12,12 +12,15 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.appcompat.widget.SearchView;
+import androidx.viewpager2.widget.MarginPageTransformer;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
@@ -26,6 +29,8 @@ import com.bumptech.glide.request.transition.Transition;
 import com.dagnerchuman.miaplicativonegociomicroservice.R;
 import com.dagnerchuman.miaplicativonegociomicroservice.activity.CarritoActivityEntrada;
 import com.dagnerchuman.miaplicativonegociomicroservice.activity.CategoriaProductosActivity;
+import com.dagnerchuman.miaplicativonegociomicroservice.adapter.CategoriaAdapter;
+import com.dagnerchuman.miaplicativonegociomicroservice.adapter.CategoriasPagerAdapter;
 import com.dagnerchuman.miaplicativonegociomicroservice.adapter.ProductoAdapter;
 import com.dagnerchuman.miaplicativonegociomicroservice.api.ApiServiceCategorias;
 import com.dagnerchuman.miaplicativonegociomicroservice.api.ApiServiceProductos;
@@ -41,7 +46,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class EntradaFragment extends Fragment implements ProductoAdapter.OnProductSelectedListener {
+public class EntradaFragment extends Fragment implements ProductoAdapter.OnProductSelectedListener, CategoriasPagerAdapter.OnCategoriaClickListener {
 
     private RecyclerView recyclerView;
     private SearchView searchView;
@@ -51,6 +56,9 @@ public class EntradaFragment extends Fragment implements ProductoAdapter.OnProdu
     private List<Producto> productList = new ArrayList();
     private FloatingActionButton btnCarrito;
     private List<Producto> productosSeleccionados = new ArrayList<>();
+    private CategoriasPagerAdapter categoriasPagerAdapter; // Cambio de nombre del adaptador
+
+    private ViewPager2 viewPagerCategorias;
 
     public EntradaFragment() {
         // Required empty public constructor
@@ -61,6 +69,7 @@ public class EntradaFragment extends Fragment implements ProductoAdapter.OnProdu
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_entrada, container, false);
 
+        viewPagerCategorias = view.findViewById(R.id.viewPagerCategorias);
         recyclerView = view.findViewById(R.id.recyclerView);
         searchView = view.findViewById(R.id.searchView);
         swipeRefreshLayout = view.findViewById(R.id.swipeRefreshLayout);
@@ -72,9 +81,12 @@ public class EntradaFragment extends Fragment implements ProductoAdapter.OnProdu
         setupSwipeRefreshLayout();
         setupCarritoButton();
 
+
         // Aquí, obtén los productos del negocio cuando se crea el fragmento
         obtenerProductosDelNegocio();
         obtenerCategorias();
+
+
         return view;
     }
 
@@ -82,10 +94,14 @@ public class EntradaFragment extends Fragment implements ProductoAdapter.OnProdu
     public void onProductSelected(Producto producto) {
         if (producto.isSelected()) {
             productosSeleccionados.add(producto);
-            Log.d("ProductoCarrito", "ID: " + producto.getId() + ", Nombre: " + producto.getNombre());
+            Toast.makeText(requireContext(), "Producto seleccionado: " + producto.getNombre(), Toast.LENGTH_SHORT).show();
         } else {
             productosSeleccionados.remove(producto);
         }
+    }
+    @Override
+    public void onCategoriaClick(Categoria categoria) {
+        navigateToCategoriaProductosActivity(categoria.getId());
     }
 
     private void setupSearchView() {
@@ -145,7 +161,7 @@ public class EntradaFragment extends Fragment implements ProductoAdapter.OnProdu
                         v.setX(newX);
                         v.setY(newY);
 
-                        if (Math.abs(event.getRawX() - startX) > 120 || Math.abs(event.getRawY() - startY) > 120) {
+                        if (Math.abs(event.getRawX() - startX) < 5 || Math.abs(event.getRawY() - startY) < 5 ) {
                             isMoving = true;
                         }
                         break;
@@ -208,47 +224,33 @@ public class EntradaFragment extends Fragment implements ProductoAdapter.OnProdu
             public void onResponse(Call<List<Categoria>> call, Response<List<Categoria>> response) {
                 if (response.isSuccessful()) {
                     List<Categoria> categorias = response.body();
-                    ViewGroup categoryButtonContainer = requireActivity().findViewById(R.id.categoryButtonContainer);
 
+                    // Crear una lista de categorías que pertenecen al negocio
+                    List<Categoria> categoriasDelNegocio = new ArrayList<>();
                     for (Categoria categoria : categorias) {
                         if (categoria.getNegocioId().equals(userNegocioId)) {
-                            Button categoryButton = new Button(requireActivity());
-
-                            // Agregar márgenes a los botones
-                            int marginInPixels = getResources().getDimensionPixelSize(R.dimen.category_button_margin);
-                            ViewGroup.MarginLayoutParams params = new ViewGroup.MarginLayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                            params.setMargins(marginInPixels, marginInPixels, marginInPixels, marginInPixels);
-                            categoryButton.setLayoutParams(params);
-
-                            categoryButton.setText(categoria.getNombre());
-
-                            // Cargar la imagen de fondo
-                            Glide.with(requireContext())
-                                    .load(categoria.getPicture())
-                                    .transform(new CenterCrop(), new ResizeTransformation(100, 100))
-                                    .into(new SimpleTarget<Drawable>() {
-                                        @Override
-                                        public void onResourceReady(Drawable resource, Transition<? super Drawable> transition) {
-                                            // Establecer la imagen de fondo con una opacidad reducida
-                                            resource.setAlpha(128); // Ajusta el nivel de opacidad (0-255) según tus preferencias
-                                            categoryButton.setBackground(resource);
-                                        }
-                                    });
-
-
-                            categoryButton.setOnClickListener(view -> {
-                                long categoriaId = categoria.getId();
-                                SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("CategoriaPrefs", Context.MODE_PRIVATE);
-                                SharedPreferences.Editor editor = sharedPreferences.edit();
-                                editor.putLong("categoriaId", categoriaId);
-                                editor.apply();
-                                Intent categoriaIntent = new Intent(requireActivity(), CategoriaProductosActivity.class);
-                                startActivity(categoriaIntent);
-                            });
-
-                            categoryButtonContainer.addView(categoryButton);
+                            categoriasDelNegocio.add(categoria);
                         }
                     }
+
+                    // Configura el adaptador para el ViewPager2
+                    categoriasPagerAdapter = new CategoriasPagerAdapter(requireContext(), categoriasDelNegocio);
+                    viewPagerCategorias.setAdapter(categoriasPagerAdapter);
+
+// Agregar la acción de hacer clic en una categoría
+                    categoriasPagerAdapter.setOnCategoriaClickListener(new CategoriasPagerAdapter.OnCategoriaClickListener() {
+                        @Override
+                        public void onCategoriaClick(Categoria categoria) {
+                            long categoriaId = categoria.getId();
+                            SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("CategoriaPrefs", Context.MODE_PRIVATE);
+                            SharedPreferences.Editor editor = sharedPreferences.edit();
+                            editor.putLong("categoriaId", categoriaId);
+                            editor.apply();
+                            Intent categoriaIntent = new Intent(requireActivity(), CategoriaProductosActivity.class);
+                            startActivity(categoriaIntent);
+                        }
+                    });
+
                 } else {
                     Log.e("API Response CATEGORIAS", "Respuesta no exitosa: " + response.code());
                     Log.e("API Response", "Estado del servidor: " + response.message());
@@ -262,6 +264,8 @@ public class EntradaFragment extends Fragment implements ProductoAdapter.OnProdu
         });
     }
 
+
+
     private void navigateToCarritoActivity() {
         ArrayList<Producto> productosSeleccionados = new ArrayList<>();
         for (Producto producto : productList) {
@@ -273,6 +277,11 @@ public class EntradaFragment extends Fragment implements ProductoAdapter.OnProdu
         Intent carritoIntent = new Intent(requireActivity(), CarritoActivityEntrada.class);
         carritoIntent.putExtra("productosEnCarritoE", productosSeleccionados);
         startActivity(carritoIntent);
+    }
+    private void navigateToCategoriaProductosActivity(long categoriaId) {
+        Intent categoriaIntent = new Intent(requireActivity(), CategoriaProductosActivity.class);
+        categoriaIntent.putExtra("categoriaId", categoriaId);
+        startActivity(categoriaIntent);
     }
 
     @Override

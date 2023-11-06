@@ -148,6 +148,7 @@ public class CategoriaProductosActivity extends AppCompatActivity {
             public void onResponse(Call<List<Producto>> call, Response<List<Producto>> response) {
                 if (response.isSuccessful()) {
                     List<Producto> productos = response.body();
+                    productList.clear();
                     productList.addAll(productos);
                     adapter.notifyDataSetChanged();
                 } else {
@@ -161,6 +162,7 @@ public class CategoriaProductosActivity extends AppCompatActivity {
             }
         });
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
