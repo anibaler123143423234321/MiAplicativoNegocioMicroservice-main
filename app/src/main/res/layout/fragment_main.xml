@@ -4,7 +4,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:layout_gravity="center_horizontal">
 
     <!-- Toolbar -->
     <androidx.appcompat.widget.Toolbar
@@ -41,69 +42,53 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:gravity="center_vertical">
 
-        <!-- ImageView para la imagen de perfil del usuario -->
-        <de.hdodenhof.circleimageview.CircleImageView
-            android:id="@+id/imageViewUserProfile"
+        <FrameLayout
+            android:id="@+id/frameLayoutProfile"
             android:layout_width="75dp"
             android:layout_height="75dp"
-            android:contentDescription="Imagen de Usuario" />
+            android:layout_gravity="center"
+            android:layout_marginStart="26dp">
 
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/imageViewUserProfile"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:contentDescription="Imagen de Usuario" />
 
+            <!--<de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/buttonEditarFoto"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="bottom|end"
+                android:src="@drawable/edit_button_background"
+                android:contentDescription="Editar Foto" />
+-->
+        </FrameLayout>
 
 
         <!-- Datos del usuario (lado derecho) -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
+            android:layout_marginStart="5dp"
             android:layout_weight="1"
-            android:layout_marginStart="16dp">
+            android:orientation="vertical">
 
-            <!-- Agrega aquí los TextViews para los datos del usuario -->
+            <TextView
+                android:id="@+id/textViewNombreApellido"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:textSize="16sp" />
+
             <TextView
                 android:id="@+id/textViewEmail"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Email: " />
+                android:textSize="14sp" />
 
-            <TextView
-                android:id="@+id/textViewNombre"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Nombre: " />
-
-            <TextView
-                android:id="@+id/textViewApellido"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Apellido: " />
-
-            <TextView
-                android:id="@+id/textViewTelefono"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Teléfono: " />
-
-            <TextView
-                android:id="@+id/textdni"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Dni: " />
-
-            <TextView
-                android:id="@+id/textViewUserId"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="ID del usuario: " />
-
-            <TextView
-                android:id="@+id/textViewNegocioId"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="ID del negocio: " />
-
-            <!-- Agrega más TextViews según tus necesidades -->
         </LinearLayout>
     </LinearLayout>
-</androidx.constraintlayout.widget.ConstraintLayout>
 
+
+</androidx.constraintlayout.widget.ConstraintLayout>

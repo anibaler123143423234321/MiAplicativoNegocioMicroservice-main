@@ -11,7 +11,7 @@ android {
         applicationId "com.dagnerchuman.miaplicativonegociomicroservice"
         minSdk 27
         targetSdk 33
-        versionCode 3
+        versionCode 4
         versionName "1.1"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"

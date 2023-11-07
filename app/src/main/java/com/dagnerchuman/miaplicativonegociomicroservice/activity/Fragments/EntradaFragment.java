@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -57,6 +58,8 @@ public class EntradaFragment extends Fragment implements ProductoAdapter.OnProdu
     private FloatingActionButton btnCarrito;
     private List<Producto> productosSeleccionados = new ArrayList<>();
     private CategoriasPagerAdapter categoriasPagerAdapter; // Cambio de nombre del adaptador
+    private Handler autoScrollHandler;
+    private final long AUTO_SCROLL_INTERVAL = 5000; // Intervalo en milisegundos (2 segundos)
 
     private ViewPager2 viewPagerCategorias;
 
@@ -81,6 +84,8 @@ public class EntradaFragment extends Fragment implements ProductoAdapter.OnProdu
         setupSwipeRefreshLayout();
         setupCarritoButton();
 
+        // Inicia la automatización del desplazamiento
+        startAutoScroll();
 
         // Aquí, obtén los productos del negocio cuando se crea el fragmento
         obtenerProductosDelNegocio();
@@ -293,4 +298,36 @@ public class EntradaFragment extends Fragment implements ProductoAdapter.OnProdu
         }
         return super.onOptionsItemSelected(item);
     }
+
+    private void startAutoScroll() {
+        autoScrollHandler = new Handler();
+        autoScrollHandler.postDelayed(autoScrollRunnable, AUTO_SCROLL_INTERVAL);
+    }
+
+    private Runnable autoScrollRunnable = new Runnable() {
+        @Override
+        public void run() {
+            // Realiza el desplazamiento automático
+            int currentItem = viewPagerCategorias.getCurrentItem();
+            int itemCount = categoriasPagerAdapter.getItemCount();
+            if (currentItem < itemCount - 1) {
+                viewPagerCategorias.setCurrentItem(currentItem + 1);
+            } else {
+                viewPagerCategorias.setCurrentItem(0);
+            }
+
+            // Programa el siguiente desplazamiento automático
+            autoScrollHandler.postDelayed(this, AUTO_SCROLL_INTERVAL);
+        }
+    };
+
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        // Detiene el desplazamiento automático
+        autoScrollHandler.removeCallbacks(autoScrollRunnable);
+    }
+
+
 }
