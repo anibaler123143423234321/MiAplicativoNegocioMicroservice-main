@@ -7,6 +7,15 @@ public class Negocio {
     private String nombre;
     private String direccion;
     private String fechaCreacion; // Cambiado a String
+    private String telefono;
+
+    public String getTelefono() {
+        return telefono;
+    }
+
+    public void setTelefono(String telefono) {
+        this.telefono = telefono;
+    }
 
     public Long getId() {
         return id;

@@ -5,5 +5,6 @@
     <color name="colorPrimary">#FF5722</color>
     <color name="colorSpinnerText">#333333</color> <!-- Cambia el valor de color según tu preferencia -->
     <color name="colorFondoPiel">#FFE0C6</color>
+    <color name="colorAccent">#FF4081</color>
 
 </resources>

@@ -20,6 +20,7 @@ import com.dagnerchuman.miaplicativonegociomicroservice.R;
 import com.dagnerchuman.miaplicativonegociomicroservice.api.ApiService;
 import com.dagnerchuman.miaplicativonegociomicroservice.api.ApiServiceNegocio;
 import com.dagnerchuman.miaplicativonegociomicroservice.api.ConfigApi;
+import com.dagnerchuman.miaplicativonegociomicroservice.entity.Negocio;
 import com.dagnerchuman.miaplicativonegociomicroservice.entity.User;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.android.material.textfield.TextInputEditText;
@@ -211,4 +212,5 @@ public class LoginActivity extends AppCompatActivity {
         Intent registerIntent = new Intent(this, RegisterActivity.class);
         startActivity(registerIntent);
     }
+
 }
