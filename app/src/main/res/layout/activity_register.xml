@@ -230,23 +230,22 @@
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <!-- ID del negocio -->
-
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/textInputLayoutNegocioId"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="ID del negocio"
-                    style="@style/MyTextInputLayoutStyle">
+                    android:hint="ID del negocio">
 
                     <Spinner
                         android:id="@+id/spinnerNegocios"
                         android:layout_width="match_parent"
-                        android:layout_height="46dp"
+                        android:layout_height="36dp"
+                        android:background="@drawable/spinner_with_dropdown_icon"
                         android:layout_marginTop="12dp"
-                        android:layout_marginBottom="12dp"
+                        android:layout_marginBottom="5dp"
                         android:gravity="center"
-                        android:paddingStart="12dp"
-                        android:paddingEnd="12dp"
+                        android:paddingStart="5dp"
+                        android:paddingEnd="5dp"
                         android:prompt="@string/select_business" />
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -255,6 +254,7 @@
                     android:id="@+id/spinnerTipoDocumento"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="@drawable/spinner_with_dropdown_icon"
                     android:layout_marginTop="8dp"
                     android:layout_marginBottom="8dp"
                     android:gravity="center"
@@ -265,6 +265,7 @@
                     android:id="@+id/spinnerDepartamento"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="@drawable/spinner_with_dropdown_icon"
                     android:layout_marginTop="8dp"
                     android:layout_marginBottom="8dp"
                     android:gravity="center"
@@ -275,6 +276,7 @@
                     android:id="@+id/spinnerProvincia"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="@drawable/spinner_with_dropdown_icon"
                     android:layout_marginTop="8dp"
                     android:layout_marginBottom="8dp"
                     android:gravity="center"
@@ -285,11 +287,11 @@
                     android:id="@+id/spinnerDistrito"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="@drawable/spinner_with_dropdown_icon"
                     android:layout_marginTop="8dp"
                     android:layout_marginBottom="8dp"
                     android:gravity="center"
-                    android:hint="Selecciona un Distrito"
-                    android:prompt="@string/select_document_Distrito" />
+                    android:hint="Selecciona un Distrito" />
 
                 <!-- Espacio adicional -->
                 <Space

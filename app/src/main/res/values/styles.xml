@@ -39,17 +39,11 @@
         <!-- Otros atributos de estilo del texto del hint -->
     </style>
 
-
-    <style name="MyTextInputLayoutStyle" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="boxBackgroundColor">@android:color/white</item>
-        <item name="boxBackgroundMode">outline</item>
-        <item name="boxCornerRadiusBottomEnd">4dp</item>
-        <item name="boxCornerRadiusBottomStart">4dp</item>
-        <item name="boxCornerRadiusTopEnd">4dp</item>
-        <item name="boxCornerRadiusTopStart">4dp</item>
-        <item name="hintTextAppearance">@style/MyHintTextAppearance</item>
+    <style name="MySpinnerTextInputLayoutStyle" parent="Widget.MaterialComponents.TextInputLayout.FilledBox">
+        <item name="boxStrokeColor">#000000</item> <!-- Color del borde -->
+        <item name="boxStrokeWidth">2dp</item> <!-- Ancho del borde -->
+        <!-- Otros atributos de estilo según sea necesario -->
     </style>
+
 
 </resources>

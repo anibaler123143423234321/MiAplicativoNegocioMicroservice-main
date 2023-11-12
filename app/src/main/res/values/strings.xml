@@ -17,11 +17,7 @@
         <item>CARNET EXTRANJERO</item>
         <item>PASAPORTE</item>
     </string-array>
-    <string name="select_document_type">Seleccionar Tipo de Documento</string>
 
-    <string name="select_document_Departamento">Seleccionar Departamento</string>
-    <string name="select_document_Provincia">Seleccionar Provincia</string>
-    <string name="select_document_Distrito">Seleccionar Distrito</string>
 
     <!-- Departamentos -->
         <string-array name="departamentos">
@@ -59,10 +55,12 @@
         <item>Lambayeque</item>
         <item>Ferreñafe</item>
 
+
     </string-array>
 
         <!-- Distritos -->
     <string-array name="distritos">
+        <item>Chiclayo</item>
         <item>Ferreñafe</item>
         <item>Pueblo Nuevo</item>
         <item>Mesones Muro</item>

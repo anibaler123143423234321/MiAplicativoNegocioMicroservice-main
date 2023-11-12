@@ -129,6 +129,7 @@ public class RegisterActivity extends AppCompatActivity {
         spinnerDistrito = findViewById(R.id.spinnerDistrito);
         imageViewSelected = findViewById(R.id.imageViewSelected);
 
+
         // Configura el evento click para el botón "Seleccionar Imagen"
         Button buttonSelectImage = findViewById(R.id.buttonSelectImage);
         buttonSelectImage.setOnClickListener(view -> {
@@ -454,6 +455,14 @@ public class RegisterActivity extends AppCompatActivity {
                 if (response.isSuccessful()) {
                     listaNegocios = response.body();
 
+                    // Filtra el negocio con id=1
+                    for (Negocio negocio : listaNegocios) {
+                        if (negocio.getId() == 1) {
+                            listaNegocios.remove(negocio);
+                            break; // Termina el bucle después de encontrar el negocio con id=1
+                        }
+                    }
+
                     // Configura el adaptador para el Spinner
                     ArrayAdapter<Negocio> adapter = new ArrayAdapter<>(RegisterActivity.this, android.R.layout.simple_spinner_item, listaNegocios);
                     adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -472,6 +481,7 @@ public class RegisterActivity extends AppCompatActivity {
             }
         });
     }
+
 
     // Implementación de openImagePicker
     private void openImagePicker() {

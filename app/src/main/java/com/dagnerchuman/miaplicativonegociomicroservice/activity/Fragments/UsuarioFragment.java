@@ -4,11 +4,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -19,6 +17,13 @@ import androidx.fragment.app.Fragment;
 import androidx.appcompat.widget.Toolbar;
 
 import com.dagnerchuman.miaplicativonegociomicroservice.R;
+import com.dagnerchuman.miaplicativonegociomicroservice.activity.ActivityMiPerfil.AyudaLinea;
+import com.dagnerchuman.miaplicativonegociomicroservice.activity.ActivityMiPerfil.InformacionLegal;
+import com.dagnerchuman.miaplicativonegociomicroservice.activity.ActivityMiPerfil.InvitarAmigos;
+import com.dagnerchuman.miaplicativonegociomicroservice.activity.ActivityMiPerfil.LibroReclamaciones;
+import com.dagnerchuman.miaplicativonegociomicroservice.activity.ActivityMiPerfil.RegistrarNegocio;
+import com.dagnerchuman.miaplicativonegociomicroservice.activity.LoginActivity;
+import com.google.android.material.button.MaterialButton;
 import com.squareup.picasso.Picasso;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -82,6 +87,75 @@ public class UsuarioFragment extends Fragment {
   //          Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
     //        startActivityForResult(intent, REQUEST_IMAGE_PICK);
       //  });
+/**
+        // Configuración del botón "Información Legal"
+        MaterialButton buttonInformacionLegal = view.findViewById(R.id.buttonInformacionLegal);
+        buttonInformacionLegal.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Inicia la actividad correspondiente
+                Intent intent = new Intent(requireContext(), InformacionLegal.class);
+                startActivity(intent);
+            }
+        });
+**/
+ /**
+        // Configuración del botón "Registrar mi Negocio"
+        MaterialButton buttonRegistrarNegocio = view.findViewById(R.id.buttonRegistrarNegocio);
+        buttonRegistrarNegocio.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Inicia la actividad correspondiente
+                Intent intent = new Intent(requireContext(), RegistrarNegocio.class);
+                startActivity(intent);
+            }
+        });
+ **/
+/**
+        // Configuración del botón "Libro de Reclamaciones"
+        MaterialButton buttonLibroReclamaciones = view.findViewById(R.id.buttonLibroReclamaciones);
+        buttonLibroReclamaciones.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Inicia la actividad correspondiente
+                Intent intent = new Intent(requireContext(), LibroReclamaciones.class);
+                startActivity(intent);
+            }
+        });
+**/
+        // Configuración del botón "Invitar Amigos"
+        MaterialButton buttonInvitarAmigos = view.findViewById(R.id.buttonInvitarAmigos);
+        buttonInvitarAmigos.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Inicia la actividad correspondiente
+                Intent intent = new Intent(requireContext(), InvitarAmigos.class);
+                startActivity(intent);
+            }
+        });
+
+        /**
+        // Configuración del botón "Ayuda en Línea"
+        MaterialButton buttonAyudaEnLinea = view.findViewById(R.id.buttonAyudaEnLinea);
+        buttonAyudaEnLinea.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Inicia la actividad correspondiente
+                Intent intent = new Intent(requireContext(), AyudaLinea.class);
+                startActivity(intent);
+            }
+        });
+**/
+        // Configuración del botón "Cerrar Sesión"
+        MaterialButton buttonCerrarSesion = view.findViewById(R.id.buttonCerrarSesion);
+        buttonCerrarSesion.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Inicia la actividad correspondiente
+                Intent intent = new Intent(requireContext(), LoginActivity.class);
+                startActivity(intent);
+            }
+        });
 
         return view;
     }
@@ -100,4 +174,5 @@ public class UsuarioFragment extends Fragment {
             // Guarda la nueva imagen de perfil en SharedPreferences u otro lugar si es necesario
         }
     }
+
 }

@@ -2,13 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.SEND_SMS" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-feature android:name="android.hardware.camera" />
-    <uses-feature
-        android:name="android.hardware.telephony"
-        android:required="false" />
+
 
     <application
         android:icon="@drawable/altoque"
@@ -45,6 +42,27 @@
         </activity>
 
 
+
+        <activity android:name=".activity.ActivityMiPerfil.InvitarAmigos">
+                <!-- Intent filters and other activity attributes go here -->
+        </activity>
+        <activity android:name=".activity.ActivityMiPerfil.AyudaLinea">
+            <!-- Intent filters and other activity attributes go here -->
+        </activity>
+        <activity android:name=".activity.ActivityMiPerfil.InformacionLegal">
+            <!-- Intent filters and other activity attributes go here -->
+        </activity>
+        <activity android:name=".activity.ActivityMiPerfil.LibroReclamaciones">
+            <!-- Intent filters and other activity attributes go here -->
+        </activity>
+        <activity android:name=".activity.ActivityMiPerfil.CerrarSesion">
+            <!-- Intent filters and other activity attributes go here -->
+        </activity>
+        <activity android:name=".activity.ActivityMiPerfil.RegistrarNegocio">
+            <!-- Intent filters and other activity attributes go here -->
+        </activity>
+
+
         <activity
             android:name=".activity.CarritoActivity"
             android:label="Carrito de Compras">
@@ -66,6 +84,7 @@
         </activity>
 
         <activity android:name=".activity.LoginActivity">
+
         </activity>
 
         <!-- Configuración de FileProvider para acceso a archivos -->
